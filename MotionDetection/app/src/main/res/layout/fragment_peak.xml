@@ -19,6 +19,63 @@
         android:text="停止"
         android:id="@+id/peak_stop"
         android:layout_marginRight="10dp"
+        android:layout_alignTop="@+id/peak_start"
         android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Peak Detection"
+        android:id="@+id/textView"
+        android:layout_marginTop="42dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignEnd="@+id/peak_start" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0.0"
+        android:id="@+id/peak_acc_x"
+        android:layout_marginTop="30dp"
+        android:layout_below="@+id/textView"
+        android:layout_alignStart="@+id/textView" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0.0"
+        android:id="@+id/peak_acc_y"
+        android:layout_marginTop="30dp"
+        android:layout_below="@+id/textView"
+        android:layout_alignStart="@+id/peak_acc_x"
+        android:layout_marginLeft="120dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0.0"
+        android:id="@+id/peak_acc_z"
+        android:layout_marginTop="30dp"
+        android:layout_below="@+id/textView"
+        android:layout_alignStart="@+id/peak_acc_y"
+        android:layout_marginLeft="140dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0.0"
+        android:id="@+id/peak_acc_total"
+        android:layout_below="@+id/peak_acc_x"
+        android:layout_alignStart="@+id/peak_acc_x"
+        android:layout_marginTop="24dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0"
+        android:id="@+id/peak_step_total"
+        android:layout_below="@+id/peak_acc_total"
+        android:layout_alignStart="@+id/peak_start"
+        android:layout_marginTop="25dp" />
 
 </RelativeLayout>

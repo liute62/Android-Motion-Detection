@@ -14,9 +14,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import java.sql.BatchUpdateException;
-
 import algorithm.PeakDetection;
+import sensor.AccelerationSensor;
 
 /**
  * Created by liuhaodong1 on 16/4/28.
@@ -43,6 +42,10 @@ public class PeakAlgoFragment extends Fragment implements SensorEventListener{
 
     private Button mStop;
 
+    private TextView mAccX,mAccY,mAccZ,mAccTotal;
+
+    private TextView mStepTotal;
+
     public static PeakAlgoFragment newInstance() {
         PeakAlgoFragment fragment = new PeakAlgoFragment();
         return fragment;
@@ -58,6 +61,7 @@ public class PeakAlgoFragment extends Fragment implements SensorEventListener{
         if (!isStop) return;
         isStop = false;
         sensorManager.registerListener(this, acceleration, sensorRate);
+        peakDetection = new PeakDetection();
     }
 
     public void stop(){
@@ -84,6 +88,11 @@ public class PeakAlgoFragment extends Fragment implements SensorEventListener{
                 stop();
             }
         });
+        mAccX = (TextView)rootView.findViewById(R.id.peak_acc_x);
+        mAccY = (TextView)rootView.findViewById(R.id.peak_acc_y);
+        mAccZ = (TextView)rootView.findViewById(R.id.peak_acc_z);
+        mAccTotal = (TextView)rootView.findViewById(R.id.peak_acc_total);
+        mStepTotal = (TextView)rootView.findViewById(R.id.peak_step_total);
         return rootView;
     }
 
@@ -103,7 +112,13 @@ public class PeakAlgoFragment extends Fragment implements SensorEventListener{
     @Override
     public void onSensorChanged(SensorEvent event) {
         if(event.sensor.getType() == Sensor.TYPE_ACCELEROMETER){
-            Log.e(TAG,event.values[0]+" "+event.values[1]+" "+event.values[2]);
+            peakDetection.feedData(new AccelerationSensor(event.values[0], event.values[1], event.values[2]));
+            int step = peakDetection.getCurrentStep();
+            mAccX.setText(String.valueOf(event.values[0]));
+            mAccY.setText(String.valueOf(event.values[1]));
+            mAccZ.setText(String.valueOf(event.values[2]));
+            mAccTotal.setText(String.valueOf(peakDetection.getLastSensor().getAcc_total()));
+            mStepTotal.setText(String.valueOf(peakDetection.getCurrentStep()));
         }
     }
 
