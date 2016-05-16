@@ -1,53 +1,114 @@
 package haodong.detection.step;
 
-import haodong.detection.step.algo.StepBonusAlgo;
-import haodong.detection.step.algo.StepPeakAlgo;
-import haodong.detection.step.algo.StepSelfAdjustAlgo;
+import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import haodong.model.sensor.AccelerationSensor;
+import haodong.model.sensor.SensorDataListener;
 
 public class StepAlgoManager {
 
-	private StepAlgoListener listener = null;
+	protected StepAlgoListener listener = null;
 	
 	private StepAlgoListener listenerInner = null;
 	
-	private AccelerationSensor dataSensor;
-	
+	private SensorDataListener sensorDataListenerInner = null;
+		
 	public static final int TYPE_ALGO_PEAK = 0;
 	
 	public static final int TYPE_ALGO_SELF_ADJUST = 1;
 	
 	public static final int TYPE_ALGO_BONUS = 2;
 	
-	private StepPeakAlgo stepPeakAlgo;
+	private boolean isPause = false;
 	
-	private StepSelfAdjustAlgo stepSelfAdjustAlgo;
+	private boolean isStop = true;
+		
+	private StepAlgoProcessor processor;
 	
-	private StepBonusAlgo stepBonusAlgo;
+	private AccelerationSensor sensor;
 	
-	public StepAlgoManager(){
-		init();
+	private Context mContext;
+	
+	private SensorManager sensorManager;
+	
+	private Sensor accSensor;
+	
+	private SensorEventListener sensorEventListener;
+	
+	private SensorDataListener sensorDataListener;
+	
+	private int sensorRate = SensorManager.SENSOR_DELAY_GAME;
+	
+	public StepAlgoManager(Context context){
+		processor = new StepAlgoProcessor(this);
+		mContext = context;
+		initInner();
+		initSensorService();
 	}
 	
-	private void init(){
-		stepPeakAlgo = new StepPeakAlgo();
+	public StepAlgoManager(){
+		processor = new StepAlgoProcessor(this);
+		initInner();
+	}
+	
+	private void initInner(){
 		listenerInner = new StepAlgoListener() {
 			@Override
 			public void onStepResult(int algoType, int stepNum) {				
 			}
 		};
+		sensorDataListenerInner = new SensorDataListener() {
+			@Override
+			public void onSensorReading(SensorEvent sensorEvent) {				
+			}
+		};
+		sensor = new AccelerationSensor();
 	}
 	
-	public void feedData(AccelerationSensor accelerationSensor){
-		dataSensor = accelerationSensor;
-		stepPeakAlgo.feedData(dataSensor.getAccTotal());
-		outputResult();
+	private void initSensorService(){
+		sensorManager = (SensorManager)mContext.getSystemService(Context.SENSOR_SERVICE);
+		accSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+		sensorEventListener = new SensorEventListener() {
+			
+			@Override
+			public void onSensorChanged(SensorEvent arg0) {
+				sensorDataListener.onSensorReading(arg0);
+				sensor = new 
+						AccelerationSensor(arg0.values[0],arg0.values[1],arg0.values[2]);
+			}
+			
+			@Override
+			public void onAccuracyChanged(Sensor arg0, int arg1) {
+				
+			}
+		};
 	}
 	
-	private void outputResult(){
-		listener.onStepResult(TYPE_ALGO_PEAK,stepPeakAlgo.getStepResult());
-		listener.onStepResult(TYPE_ALGO_SELF_ADJUST,stepSelfAdjustAlgo.getStepResult());
-		listener.onStepResult(TYPE_ALGO_BONUS, stepBonusAlgo.getStepResult());
+	private void startSensorService(){
+		sensorManager.registerListener(sensorEventListener, accSensor,sensorRate);
+	}
+	
+	private void stopSensorService(){
+		sensorManager.unregisterListener(sensorEventListener);
+	}
+	
+	public void start(){
+		isPause = false;
+		isStop = false;
+		startSensorService();
+		processor.feedData(sensor);
+	}
+	
+	public void pause(){
+		isPause = true;
+	}
+	
+	public void stop(){
+		isStop = true;
+		stopSensorService();
 	}
 
 	public StepAlgoListener getListener() {
@@ -58,5 +119,22 @@ public class StepAlgoManager {
 	public void setListener(StepAlgoListener l) {
 		if(l == null) this.listener = listenerInner;
 		else this.listener = l;
+	}
+	
+	public void registerSensorDataListener(SensorDataListener l){
+		if(l == null) this.sensorDataListener = sensorDataListenerInner;
+		else this.sensorDataListener = l;
+	}
+	
+	public void unregisterSensorDataListner(){
+		this.sensorDataListener = sensorDataListenerInner;
+	}
+
+	public boolean isStop() {
+		return isStop;
+	}
+
+	public boolean isPause() {
+		return isPause;
 	}
 }

@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import algorithm.CoorTransform;
 import algorithm.PeakDetection;
 import sensor.AccelerationSensor;
 
@@ -34,7 +35,9 @@ public class PeakAlgoFragment extends Fragment implements SensorEventListener{
 
     private Sensor acceleration;
 
-    private final int sensorRate = SensorManager.SENSOR_DELAY_GAME;
+    private Sensor orientation;
+
+    private final int sensorRate = SensorManager.SENSOR_DELAY_NORMAL;
 
     private boolean isStop;
 
@@ -45,6 +48,8 @@ public class PeakAlgoFragment extends Fragment implements SensorEventListener{
     private TextView mAccX,mAccY,mAccZ,mAccTotal;
 
     private TextView mStepTotal;
+
+    private CoorTransform coorTransform;
 
     public static PeakAlgoFragment newInstance() {
         PeakAlgoFragment fragment = new PeakAlgoFragment();
@@ -61,6 +66,7 @@ public class PeakAlgoFragment extends Fragment implements SensorEventListener{
         if (!isStop) return;
         isStop = false;
         sensorManager.registerListener(this, acceleration, sensorRate);
+        sensorManager.registerListener(this,orientation,sensorRate);
         peakDetection = new PeakDetection();
     }
 
@@ -107,11 +113,14 @@ public class PeakAlgoFragment extends Fragment implements SensorEventListener{
         mContext = getActivity();
         sensorManager = (SensorManager)mContext.getSystemService(Context.SENSOR_SERVICE);
         acceleration = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        orientation = sensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
+        coorTransform = new CoorTransform();
     }
 
     @Override
     public void onSensorChanged(SensorEvent event) {
         if(event.sensor.getType() == Sensor.TYPE_ACCELEROMETER){
+
             peakDetection.feedData(new AccelerationSensor(event.values[0], event.values[1], event.values[2]));
             int step = peakDetection.getCurrentStep();
             mAccX.setText(String.valueOf(event.values[0]));
@@ -119,7 +128,19 @@ public class PeakAlgoFragment extends Fragment implements SensorEventListener{
             mAccZ.setText(String.valueOf(event.values[2]));
             mAccTotal.setText(String.valueOf(peakDetection.getLastSensor().getAcc_total()));
             mStepTotal.setText(String.valueOf(peakDetection.getCurrentStep()));
+            coorTransform.setAcc_phone_x(event.values[0]);
+            coorTransform.setAcc_phone_y(event.values[1]);
+            coorTransform.setAcc_phone_z(event.values[2]);
+            Log.e(TAG,"acc ");
+        }else if(event.sensor.getType() == Sensor.TYPE_ORIENTATION){
+            Log.e(TAG, "orien " + event.values[0] + " " + event.values[1]);
+            coorTransform.setOrien_x(event.values[1]);
+            coorTransform.setOrien_y(event.values[2]);
+            coorTransform.setOrien_z(event.values[0]);
         }
+        coorTransform.transform();
+        coorTransform.transformInSimple();
+        coorTransform.print();
     }
 
     @Override

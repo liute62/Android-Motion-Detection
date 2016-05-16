@@ -76,6 +76,7 @@
         android:id="@+id/peak_step_total"
         android:layout_below="@+id/peak_acc_total"
         android:layout_alignStart="@+id/peak_start"
-        android:layout_marginTop="25dp" />
+        android:layout_marginTop="25dp"
+        android:layout_alignParentEnd="true" />
 
 </RelativeLayout>

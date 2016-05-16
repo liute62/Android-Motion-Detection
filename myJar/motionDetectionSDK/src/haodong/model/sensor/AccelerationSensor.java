@@ -20,6 +20,7 @@ public class AccelerationSensor extends BaseSensor{
 		this.setAcc_x(x);
 		this.setAcc_y(y);
 		this.setAcc_z(z);
+		acc_total = (float)Math.sqrt(x * x + y * y + z * z);
 	}
 
 	public float getAccTotal() {
