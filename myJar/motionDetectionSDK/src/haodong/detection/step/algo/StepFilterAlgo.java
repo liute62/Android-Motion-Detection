@@ -11,15 +11,17 @@ public class StepFilterAlgo implements IStepAlgo{
 	
 	private ArrayList<Integer> resultStep;
 	
+	private int lastStep = 0;
+	
 	public static final int section = 300;
 	
 	private int size = 0;
 	
-	private int wsSmooth0 = 10; 
+	private int wsSmooth0 = 11; 
 	
-	private int wsSmooth1Half = 11; 
+	private int wsSmooth1Half = 10; 
 	
-    private int wsPeak; //windows size of peak detection //14,15
+    private int wsPeak = 11; //windows size of peak detection //14,15
 	
 	private float peakJudge = 0.052f;
 	
@@ -38,6 +40,7 @@ public class StepFilterAlgo implements IStepAlgo{
 	
 	@Override
 	public void feedData(float acc_total) {
+		isDetected = false;
 		accTotal.add(acc_total);
 		size = accTotal.size();
 		totalSampleNum++;
@@ -110,6 +113,7 @@ public class StepFilterAlgo implements IStepAlgo{
 
             if (isDetected) {
                 resultStep.set(tmp - wsPeak - 1, resultStep.get(tmp - wsPeak - 2) + 1);
+                lastStep = resultStep.get(tmp - wsPeak - 1);
             } else if (tmp > wsPeak + 1) {
                 resultStep.set(tmp - wsPeak - 1, resultStep.get(tmp - wsPeak - 2));
             }
@@ -121,7 +125,12 @@ public class StepFilterAlgo implements IStepAlgo{
 
 	@Override
 	public int getStepResult() {
-		return resultStep.get(resultStep.size()-1);
+		return lastStep;
+	}
+
+	@Override
+	public ArrayList<Integer> getStepResultList() {
+		return resultStep;
 	}
 
 }

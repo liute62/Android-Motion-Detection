@@ -120,5 +120,10 @@ public class StepSelfAdjustAlgo implements IStepAlgo {
 	public int getStepResult() {
 		return stepTotalNum;
 	}
+
+	@Override
+	public ArrayList<Integer> getStepResultList() {
+		return null;
+	}
 	
 }

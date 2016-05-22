@@ -5,6 +5,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import haodong.main.OnDebugListener;
 import haodong.main.SensorDataListener;
 import haodong.model.sensor.AccelerationSensor;
 
@@ -14,7 +15,13 @@ public class StepAlgoManager {
 	
 	private StepAlgoListener listenerInner = null;
 	
+	private SensorDataListener sensorDataListener = null;
+	
 	private SensorDataListener sensorDataListenerInner = null;
+	
+	protected OnDebugListener onDebugListener = null;
+	
+	private OnDebugListener onDebugListenerInner = null;
 		
 	public static final int TYPE_ALGO_PEAK = 0;
 	
@@ -39,9 +46,7 @@ public class StepAlgoManager {
 	private Sensor accSensor;
 	
 	private SensorEventListener sensorEventListener;
-	
-	private SensorDataListener sensorDataListener;
-	
+		
 	private int sensorRate = SensorManager.SENSOR_DELAY_GAME;
 	
 	public StepAlgoManager(Context context){
@@ -67,7 +72,16 @@ public class StepAlgoManager {
 			public void onSensorReading(SensorEvent sensorEvent) {				
 			}
 		};
+		onDebugListenerInner = new OnDebugListener() {
+			
+			@Override
+			public void printValues(String str) {
+			}
+		};
 		sensor = new AccelerationSensor();
+		sensorDataListener = sensorDataListenerInner;
+		listener = listenerInner;
+		onDebugListener = onDebugListenerInner;
 	}
 	
 	private void initSensorService(){
@@ -78,8 +92,8 @@ public class StepAlgoManager {
 			@Override
 			public void onSensorChanged(SensorEvent arg0) {
 				sensorDataListener.onSensorReading(arg0);
-				sensor = new 
-						AccelerationSensor(arg0.values[0],arg0.values[1],arg0.values[2]);
+				sensor = new AccelerationSensor(arg0.values[0],arg0.values[1],arg0.values[2]);
+				processor.feedData(sensor);
 			}
 			
 			@Override
@@ -101,7 +115,6 @@ public class StepAlgoManager {
 		isPause = false;
 		isStop = false;
 		startSensorService();
-		processor.feedData(sensor);
 	}
 	
 	public void pause(){
@@ -111,6 +124,7 @@ public class StepAlgoManager {
 	public void stop(){
 		isStop = true;
 		stopSensorService();
+		processor.reset();
 	}
 
 	public StepAlgoListener getListener() {
@@ -130,6 +144,11 @@ public class StepAlgoManager {
 	
 	public void unregisterSensorDataListner(){
 		this.sensorDataListener = sensorDataListenerInner;
+	}
+	
+	public void registerDebugListener(OnDebugListener l){
+		if(l == null) this.onDebugListener = onDebugListenerInner;
+		this.onDebugListener = l;
 	}
 
 	public boolean isStop() {

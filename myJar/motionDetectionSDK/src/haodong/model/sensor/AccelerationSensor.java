@@ -12,6 +12,8 @@ public class AccelerationSensor extends BaseSensor{
 	
 	private float acc_total;
 	
+	private float acc_total_trans;
+	
 	public AccelerationSensor(){
 		
 	}
@@ -21,6 +23,10 @@ public class AccelerationSensor extends BaseSensor{
 		this.setAcc_y(y);
 		this.setAcc_z(z);
 		acc_total = (float)Math.sqrt(x * x + y * y + z * z);
+		float x2 = - x / 9.80665f;
+		float y2 = -y / 9.80665f;
+		float z2 = z / 9.80665f;
+		acc_total_trans = (float)Math.sqrt(x2 * x2 + y2 * y2 + z2 * z2);
 	}
 
 	public float getAccTotal() {
@@ -53,6 +59,14 @@ public class AccelerationSensor extends BaseSensor{
 
 	public void setAcc_z(float acc_z) {
 		this.acc_z = acc_z;
+	}
+
+	public float getAcc_total_trans() {
+		return acc_total_trans;
+	}
+
+	public void setAcc_total_trans(float acc_total_trans) {
+		this.acc_total_trans = acc_total_trans;
 	}
 
 }

@@ -1,5 +1,7 @@
 package haodong.detection.step.algo;
 
+import java.util.ArrayList;
+
 public class StepPeakAlgo implements IStepAlgo{
 
 	private float peakThreshold = 1.2f;
@@ -47,5 +49,10 @@ public class StepPeakAlgo implements IStepAlgo{
 
 	public void setPeakThreshold(float peakThreshold) {
 		this.peakThreshold = peakThreshold;
+	}
+
+	@Override
+	public ArrayList<Integer> getStepResultList() {
+		return null;
 	}
 }
