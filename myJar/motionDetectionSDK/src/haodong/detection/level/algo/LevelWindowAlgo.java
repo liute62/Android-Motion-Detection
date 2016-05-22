@@ -2,7 +2,7 @@ package haodong.detection.level.algo;
 
 import java.util.ArrayList;
 
-public class LevelFilterAlgo {
+public class LevelWindowAlgo {
 	
 	public final int windowsMax = 18;
 	
@@ -22,7 +22,7 @@ public class LevelFilterAlgo {
 	
 	private ArrayList<Float> baroForLowPass;
 	
-	public LevelFilterAlgo(){
+	public LevelWindowAlgo(){
 		baroForLowPass = new ArrayList<>();
 		baroForSmooth = new ArrayList<>();
 	}

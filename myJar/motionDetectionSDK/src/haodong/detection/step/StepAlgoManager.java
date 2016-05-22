@@ -5,8 +5,8 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import haodong.main.SensorDataListener;
 import haodong.model.sensor.AccelerationSensor;
-import haodong.model.sensor.SensorDataListener;
 
 public class StepAlgoManager {
 
@@ -21,6 +21,8 @@ public class StepAlgoManager {
 	public static final int TYPE_ALGO_SELF_ADJUST = 1;
 	
 	public static final int TYPE_ALGO_BONUS = 2;
+	
+	public static final int TYPE_ALGO_FILTER = 3;
 	
 	private boolean isPause = false;
 	

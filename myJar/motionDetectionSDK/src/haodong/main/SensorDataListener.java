@@ -1,4 +1,4 @@
-package haodong.model.sensor;
+package haodong.main;
 
 import android.hardware.SensorEvent;
 

@@ -24,8 +24,8 @@ public class StepPeakAlgo implements IStepAlgo{
 	@Override
 	public int getStepResult(){
 		if(System.currentTimeMillis() - lastTime > peakInterval * 1000){
-			lastTime = System.currentTimeMillis();
 			if(currentPeakResult > peakThreshold){
+				lastTime = System.currentTimeMillis();
 				stepTotal++;
 				currentPeakResult = 0;
 			}
