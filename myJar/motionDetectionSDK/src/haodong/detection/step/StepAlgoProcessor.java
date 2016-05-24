@@ -38,7 +38,6 @@ class StepAlgoProcessor {
 		stepSelfAdjustAlgo.feedData(dataSensor.getAccTotal());
 		stepBonusAlgo.feedData(dataSensor.getAccTotal());
 		stepFilterAlgo.feedData(dataSensor.getAcc_total_trans());
-		stepAlgoManager.onDebugListener.printValues("acc_total_trans "+dataSensor.getAcc_total_trans());
 		outputResult();
 	}
 	
@@ -51,6 +50,5 @@ class StepAlgoProcessor {
 		stepAlgoManager.listener.onStepResult(StepAlgoManager.TYPE_ALGO_SELF_ADJUST,stepSelfAdjustAlgo.getStepResult());
 		stepAlgoManager.listener.onStepResult(StepAlgoManager.TYPE_ALGO_BONUS, stepBonusAlgo.getStepResult());
 		stepAlgoManager.listener.onStepResult(StepAlgoManager.TYPE_ALGO_FILTER, stepFilterAlgo.getStepResult());
-		stepAlgoManager.onDebugListener.printValues("acc_all"+stepFilterAlgo.getStepResultList());
 	}
 }

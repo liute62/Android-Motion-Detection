@@ -73,9 +73,9 @@ public class StepAlgoManager {
 			}
 		};
 		onDebugListenerInner = new OnDebugListener() {
-			
+
 			@Override
-			public void printValues(String str) {
+			public void printValues(String TAG, String funcName, String str) {				
 			}
 		};
 		sensor = new AccelerationSensor();

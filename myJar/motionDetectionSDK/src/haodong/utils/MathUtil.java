@@ -3,6 +3,10 @@ package haodong.utils;
 import java.util.ArrayList;
 
 public class MathUtil {
+	
+    public static double radiusToDegree(double radius) {
+        return radius * (180 / 3.1415926);
+    }
 
 	public static float getMeanValue(ArrayList<Float> data) {
 
@@ -15,7 +19,7 @@ public class MathUtil {
 		}
 		return sum / data.size();
 	}
-	
+
 	public static float getMeanValue(float[] data) {
 
 		if (data == null || data.length == 0)
@@ -40,7 +44,7 @@ public class MathUtil {
 		float result = (float) Math.sqrt(sum / data.size());
 		return result;
 	}
-	
+
 	public static float getNormalDeviationValue(float[] data) {
 		if (data == null || data.length == 0)
 			return 0;
@@ -54,7 +58,7 @@ public class MathUtil {
 		return result;
 	}
 
-	public class Matrix<E> {
+	public static class Matrix<E> {
 
 		private int rowNum = 0;
 
@@ -91,7 +95,7 @@ public class MathUtil {
 			array = a;
 		}
 
-		public Matrix<Float> multiply(Matrix<Float> a, Matrix<Float> b) {
+		public static Matrix<Float> multiply(Matrix<Float> a, Matrix<Float> b) {
 			Matrix<Float> matrix = new Matrix<>(a.rowNum, b.colNum);
 			Float sum = 0.0f;
 			int i;
@@ -106,6 +110,13 @@ public class MathUtil {
 				}
 			}
 			return matrix;
+		}
+
+		public void print() {
+			for (int i = 0; i != rowNum; i++) {
+				for (int j = 0; j != colNum; j++) {
+				}
+			}
 		}
 	}
 }
