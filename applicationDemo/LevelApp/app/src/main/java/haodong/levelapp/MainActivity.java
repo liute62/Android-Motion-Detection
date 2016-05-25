@@ -1,17 +1,26 @@
 package haodong.levelapp;
 
+import android.hardware.SensorEvent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class MainActivity extends AppCompatActivity {
+import java.util.ArrayList;
+
+import haodong.detection.level.LevelAlgoManager;
+import haodong.main.SensorDataFormat;
+import haodong.main.SensorDataListener;
+import haodong.utils.FileUtil;
+
+public class MainActivity extends AppCompatActivity implements SensorDataListener{
 
     TextView mIsStart;
 
@@ -26,6 +35,16 @@ public class MainActivity extends AppCompatActivity {
     String[] dirText = new String[]{"保持","上楼","下楼"};
 
     int[] dirImage = new int[]{R.drawable.stay,R.drawable.upstairs,R.drawable.downstairs};
+
+    LevelAlgoManager levelAlgoManager;
+
+    ArrayList<String> data = new ArrayList<>();
+
+    ArrayList<Long> time = new ArrayList<>();
+
+    long currentTime = 0;
+
+    long lastTime = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,10 +63,16 @@ public class MainActivity extends AppCompatActivity {
                     mDirImage.setImageResource(dirImage[0]);
                     mDirText.setText(dirText[0]);
                     mStep.setText("114");
+                    levelAlgoManager.start();
 
                 }else {
                     isStart = false;
                     mIsStart.setText("已停止");
+                    levelAlgoManager.stop();
+                    SensorDataFormat sensorDataFormat = new SensorDataFormat();
+                    String file = sensorDataFormat.listToString(time, data, ',');
+                    FileUtil fileUtil = new FileUtil();
+                    fileUtil.writeFileFromAbPath(Environment.getExternalStorageDirectory().getAbsolutePath()+"level.txt",file,false);
                 }
             }
         });
@@ -55,6 +80,8 @@ public class MainActivity extends AppCompatActivity {
         mDirImage = (ImageView)findViewById(R.id.main_level);
         mDirText = (TextView)findViewById(R.id.main_level_text);
         mStep = (TextView)findViewById(R.id.main_step);
+        levelAlgoManager = new LevelAlgoManager(this);
+        levelAlgoManager.registerSensorDataListener(this);
     }
 
     @Override
@@ -77,5 +104,16 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onSensorReading(SensorEvent sensorEvent) {
+
+           currentTime = System.currentTimeMillis();
+        if(currentTime - lastTime > 50){
+            lastTime = currentTime;
+            data.add(String.valueOf(sensorEvent.values[0]));
+            time.add(lastTime);
+        }
     }
 }

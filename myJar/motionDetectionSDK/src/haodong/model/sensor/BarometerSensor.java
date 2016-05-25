@@ -6,8 +6,8 @@ public class BarometerSensor extends BaseSensor{
 	
 	private float pressure;
 
-	public BarometerSensor(){
-		
+	public BarometerSensor(float pressure){
+		this.pressure = pressure;
 	}
 
 	public float getPressure() {
