@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?><TestSessionContainer xmlns="http://www.codecover.org/xml/testsession-container" Date="1464174026978" TestSessionContainerId="0563f1db-2532-4d46-b089-694ea4af3fda" version="1.0">
+<SrcFileList>
+<SrcFile Content="package haodong.detection.step.algo;&#10;&#10;import java.util.ArrayList;&#10;&#10;public interface IStepAlgo {&#10;&#10;&#9;public void feedData(float acc_total);&#10;&#9;&#10;&#9;public int getStepResult();&#10;&#9;&#10;&#9;public ArrayList&lt;Integer&gt; getStepResultList();&#10;}&#10;" Filename="IStepAlgo.java" Intrnl_Id="1"/>
+<SrcFile Content="package haodong.detection.step.algo;&#10;&#10;import java.util.ArrayList;&#10;&#10;public class StepBonusAlgo implements IStepAlgo{&#10;&#10;&#9;public StepBonusAlgo(){&#10;&#9;&#9;&#10;&#9;}&#10;&#9;&#10;&#9;@Override&#10;&#9;public void feedData(float acc_total) {&#10;&#9;&#9;&#10;&#9;}&#9;&#10;&#10;&#9;@Override&#10;&#9;public int getStepResult() {&#10;&#9;&#9;return 0;&#10;&#9;}&#10;&#10;&#9;@Override&#10;&#9;public ArrayList&lt;Integer&gt; getStepResultList() {&#10;&#9;&#9;return null;&#10;&#9;}&#10;}&#10;" Filename="StepBonusAlgo.java" Intrnl_Id="2"/>
+</SrcFileList>
+<CritList>
+<CritListEntry Name="org.codecover.model.utils.criteria.LoopCoverage" PluginName="org.codecover"/>
+<CritListEntry Name="org.codecover.model.utils.criteria.QMOCoverage" PluginName="org.codecover"/>
+<CritListEntry Name="org.codecover.model.utils.criteria.ConditionCoverage" PluginName="org.codecover"/>
+<CritListEntry Name="org.codecover.model.utils.criteria.BranchCoverage" PluginName="org.codecover"/>
+<CritListEntry Name="org.codecover.model.utils.criteria.SynchronizedStatementCoverage" PluginName="org.codecover"/>
+<CritListEntry Name="org.codecover.model.utils.criteria.StatementCoverage" PluginName="org.codecover"/>
+</CritList>
+<BoolOpList/>
+<HierarchyLvlTypeList>
+<HierarchyLvlType EnglishName="package" IntrnlName="package" Intrnl_Id="3"/>
+<HierarchyLvlType EnglishName="interface" IntrnlName="interface" Intrnl_Id="4"/>
+<HierarchyLvlType EnglishName="method" IntrnlName="method" Intrnl_Id="5"/>
+<HierarchyLvlType EnglishName="class" IntrnlName="class" Intrnl_Id="6"/>
+<HierarchyLvlType EnglishName="default package" IntrnlName="default package" Intrnl_Id="7"/>
+</HierarchyLvlTypeList>
+<MASTRoot>
+<HierarchyLvl HierarchyLvlId="59" HierarchyLvlTypeId="7" Intrnl_Id="8" Name="default package">
+<Header/>
+<LocList/>
+<HierarchyLvl HierarchyLvlId="58" HierarchyLvlTypeId="3" Intrnl_Id="9" Name="haodong">
+<Header/>
+<LocList/>
+<HierarchyLvl HierarchyLvlId="57" HierarchyLvlTypeId="3" Intrnl_Id="10" Name="detection">
+<Header/>
+<LocList/>
+<HierarchyLvl HierarchyLvlId="56" HierarchyLvlTypeId="3" Intrnl_Id="11" Name="step">
+<Header/>
+<LocList/>
+<HierarchyLvl HierarchyLvlId="55" HierarchyLvlTypeId="3" Intrnl_Id="12" Name="algo">
+<Header/>
+<LocList/>
+<HierarchyLvl HierarchyLvlId="49" HierarchyLvlTypeId="4" Intrnl_Id="13" Name="IStepAlgo">
+<Header>
+<Loc EndOffset="93" SrcFileId="1" StartOffset="67"/>
+</Header>
+<LocList>
+<Loc EndOffset="219" SrcFileId="1" StartOffset="67"/>
+</LocList>
+<HierarchyLvl HierarchyLvlId="46" HierarchyLvlTypeId="5" Intrnl_Id="14" Name="feedData">
+<Header>
+<Loc EndOffset="135" SrcFileId="1" StartOffset="98"/>
+</Header>
+<LocList>
+<Loc EndOffset="136" SrcFileId="1" StartOffset="98"/>
+</LocList>
+</HierarchyLvl>
+<HierarchyLvl HierarchyLvlId="47" HierarchyLvlTypeId="5" Intrnl_Id="15" Name="getStepResult">
+<Header>
+<Loc EndOffset="166" SrcFileId="1" StartOffset="140"/>
+</Header>
+<LocList>
+<Loc EndOffset="167" SrcFileId="1" StartOffset="140"/>
+</LocList>
+</HierarchyLvl>
+<HierarchyLvl HierarchyLvlId="48" HierarchyLvlTypeId="5" Intrnl_Id="16" Name="getStepResultList">
+<Header>
+<Loc EndOffset="216" SrcFileId="1" StartOffset="171"/>
+</Header>
+<LocList>
+<Loc EndOffset="217" SrcFileId="1" StartOffset="171"/>
+</LocList>
+</HierarchyLvl>
+</HierarchyLvl>
+<HierarchyLvl HierarchyLvlId="54" HierarchyLvlTypeId="6" Intrnl_Id="17" Name="StepBonusAlgo">
+<Header>
+<Loc EndOffset="114" SrcFileId="2" StartOffset="67"/>
+</Header>
+<LocList>
+<Loc EndOffset="346" SrcFileId="2" StartOffset="67"/>
+</LocList>
+<HierarchyLvl HierarchyLvlId="50" HierarchyLvlTypeId="5" Intrnl_Id="18" Name="StepBonusAlgo">
+<Header>
+<Loc EndOffset="140" SrcFileId="2" StartOffset="118"/>
+</Header>
+<LocList>
+<Loc EndOffset="147" SrcFileId="2" StartOffset="118"/>
+</LocList>
+</HierarchyLvl>
+<HierarchyLvl HierarchyLvlId="51" HierarchyLvlTypeId="5" Intrnl_Id="19" Name="feedData">
+<Header>
+<Loc EndOffset="199" SrcFileId="2" StartOffset="151"/>
+</Header>
+<LocList>
+<Loc EndOffset="207" SrcFileId="2" StartOffset="151"/>
+</LocList>
+</HierarchyLvl>
+<HierarchyLvl HierarchyLvlId="52" HierarchyLvlTypeId="5" Intrnl_Id="20" Name="getStepResult">
+<Header>
+<Loc EndOffset="248" SrcFileId="2" StartOffset="211"/>
+</Header>
+<LocList>
+<Loc EndOffset="265" SrcFileId="2" StartOffset="211"/>
+</LocList>
+<StmntSeq Intrnl_Id="21">
+<LocList>
+<Loc EndOffset="262" SrcFileId="2" StartOffset="253"/>
+</LocList>
+<BasicStmnt CovItemId="S1" CovItemPrefix="haodong.detection.step.algo.StepBonusAlgo.java" Intrnl_Id="22">
+<LocList>
+<Loc EndOffset="262" SrcFileId="2" StartOffset="253"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+</HierarchyLvl>
+<HierarchyLvl HierarchyLvlId="53" HierarchyLvlTypeId="5" Intrnl_Id="23" Name="getStepResultList">
+<Header>
+<Loc EndOffset="324" SrcFileId="2" StartOffset="268"/>
+</Header>
+<LocList>
+<Loc EndOffset="344" SrcFileId="2" StartOffset="268"/>
+</LocList>
+<StmntSeq Intrnl_Id="24">
+<LocList>
+<Loc EndOffset="341" SrcFileId="2" StartOffset="329"/>
+</LocList>
+<BasicStmnt CovItemId="S2" CovItemPrefix="haodong.detection.step.algo.StepBonusAlgo.java" Intrnl_Id="25">
+<LocList>
+<Loc EndOffset="341" SrcFileId="2" StartOffset="329"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+</HierarchyLvl>
+</HierarchyLvl>
+</HierarchyLvl>
+</HierarchyLvl>
+</HierarchyLvl>
+</HierarchyLvl>
+</HierarchyLvl>
+</MASTRoot>
+</TestSessionContainer>

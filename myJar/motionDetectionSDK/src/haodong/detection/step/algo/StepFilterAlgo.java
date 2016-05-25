@@ -32,9 +32,9 @@ public class StepFilterAlgo implements IStepAlgo{
 	private float alpha = 0.25f;
 	
 	public StepFilterAlgo() {
-		accTotal = new ArrayList<>();
-		accFilter = new ArrayList<>();
-		resultStep = new ArrayList<>();
+		accTotal = new ArrayList<Float>();
+		accFilter = new ArrayList<ArrayList<Float>>();
+		resultStep = new ArrayList<Integer>();
 		resultStep.add(0);
 	}
 	
@@ -53,16 +53,16 @@ public class StepFilterAlgo implements IStepAlgo{
 	}
 	
 	public void reset(){
-		accTotal = new ArrayList<>();
-		accFilter = new ArrayList<>();
-		resultStep = new ArrayList<>();
+		accTotal = new ArrayList<Float>();
+		accFilter = new ArrayList<ArrayList<Float>>();
+		resultStep = new ArrayList<Integer>();
 		resultStep.add(0);
 		totalSampleNum = 0;
 		size = 0;
 	}
 	
 	private void stepDetection(){
-		ArrayList<Float> accFilterTmp = new ArrayList<>();
+		ArrayList<Float> accFilterTmp = new ArrayList<Float>();
         accFilterTmp.add(accTotal.get(size - 1));
         accFilterTmp.add(0.0f);
         accFilterTmp.add(0.0f);
@@ -70,7 +70,7 @@ public class StepFilterAlgo implements IStepAlgo{
         resultStep.add(resultStep.get(resultStep.size() - 1)); //add the last one
         
         if(size > wsSmooth0){
-        	ArrayList<Float> tmpSmooth0 = new ArrayList<>();
+        	ArrayList<Float> tmpSmooth0 = new ArrayList<Float>();
         	for(int j = size; j >= size - wsSmooth0 + 1; j--){
         		tmpSmooth0.add(accTotal.get(size-1));
         	}

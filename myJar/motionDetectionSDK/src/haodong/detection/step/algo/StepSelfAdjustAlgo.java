@@ -28,7 +28,7 @@ public class StepSelfAdjustAlgo implements IStepAlgo {
 			arrayLength++;
 		}else{
 			
-			ArrayList<Model> models = new ArrayList<>();
+			ArrayList<Model> models = new ArrayList<Model>();
 			
 			for(int i = 1; i != 8; i++){
 				models.add(loopInner(i, array));

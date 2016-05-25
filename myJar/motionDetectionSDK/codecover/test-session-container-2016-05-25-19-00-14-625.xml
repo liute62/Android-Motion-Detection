@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?><TestSessionContainer xmlns="http://www.codecover.org/xml/testsession-container" Date="1464174014611" TestSessionContainerId="f59b285e-13ef-4e00-9808-6594df4d0447" version="1.0">
+<SrcFileList>
+<SrcFile Content="package haodong.detection.step.algo;&#10;&#10;import java.util.ArrayList;&#10;&#10;public interface IStepAlgo {&#10;&#10;&#9;public void feedData(float acc_total);&#10;&#9;&#10;&#9;public int getStepResult();&#10;&#9;&#10;&#9;public ArrayList&lt;Integer&gt; getStepResultList();&#10;}&#10;" Filename="IStepAlgo.java" Intrnl_Id="1"/>
+</SrcFileList>
+<CritList>
+<CritListEntry Name="org.codecover.model.utils.criteria.LoopCoverage" PluginName="org.codecover"/>
+<CritListEntry Name="org.codecover.model.utils.criteria.QMOCoverage" PluginName="org.codecover"/>
+<CritListEntry Name="org.codecover.model.utils.criteria.ConditionCoverage" PluginName="org.codecover"/>
+<CritListEntry Name="org.codecover.model.utils.criteria.BranchCoverage" PluginName="org.codecover"/>
+<CritListEntry Name="org.codecover.model.utils.criteria.SynchronizedStatementCoverage" PluginName="org.codecover"/>
+<CritListEntry Name="org.codecover.model.utils.criteria.StatementCoverage" PluginName="org.codecover"/>
+</CritList>
+<BoolOpList/>
+<HierarchyLvlTypeList>
+<HierarchyLvlType EnglishName="package" IntrnlName="package" Intrnl_Id="2"/>
+<HierarchyLvlType EnglishName="interface" IntrnlName="interface" Intrnl_Id="3"/>
+<HierarchyLvlType EnglishName="method" IntrnlName="method" Intrnl_Id="4"/>
+<HierarchyLvlType EnglishName="default package" IntrnlName="default package" Intrnl_Id="5"/>
+</HierarchyLvlTypeList>
+<MASTRoot>
+<HierarchyLvl HierarchyLvlId="45" HierarchyLvlTypeId="5" Intrnl_Id="6" Name="default package">
+<Header/>
+<LocList/>
+<HierarchyLvl HierarchyLvlId="44" HierarchyLvlTypeId="2" Intrnl_Id="7" Name="haodong">
+<Header/>
+<LocList/>
+<HierarchyLvl HierarchyLvlId="43" HierarchyLvlTypeId="2" Intrnl_Id="8" Name="detection">
+<Header/>
+<LocList/>
+<HierarchyLvl HierarchyLvlId="42" HierarchyLvlTypeId="2" Intrnl_Id="9" Name="step">
+<Header/>
+<LocList/>
+<HierarchyLvl HierarchyLvlId="41" HierarchyLvlTypeId="2" Intrnl_Id="10" Name="algo">
+<Header/>
+<LocList/>
+<HierarchyLvl HierarchyLvlId="40" HierarchyLvlTypeId="3" Intrnl_Id="11" Name="IStepAlgo">
+<Header>
+<Loc EndOffset="93" SrcFileId="1" StartOffset="67"/>
+</Header>
+<LocList>
+<Loc EndOffset="219" SrcFileId="1" StartOffset="67"/>
+</LocList>
+<HierarchyLvl HierarchyLvlId="37" HierarchyLvlTypeId="4" Intrnl_Id="12" Name="feedData">
+<Header>
+<Loc EndOffset="135" SrcFileId="1" StartOffset="98"/>
+</Header>
+<LocList>
+<Loc EndOffset="136" SrcFileId="1" StartOffset="98"/>
+</LocList>
+</HierarchyLvl>
+<HierarchyLvl HierarchyLvlId="38" HierarchyLvlTypeId="4" Intrnl_Id="13" Name="getStepResult">
+<Header>
+<Loc EndOffset="166" SrcFileId="1" StartOffset="140"/>
+</Header>
+<LocList>
+<Loc EndOffset="167" SrcFileId="1" StartOffset="140"/>
+</LocList>
+</HierarchyLvl>
+<HierarchyLvl HierarchyLvlId="39" HierarchyLvlTypeId="4" Intrnl_Id="14" Name="getStepResultList">
+<Header>
+<Loc EndOffset="216" SrcFileId="1" StartOffset="171"/>
+</Header>
+<LocList>
+<Loc EndOffset="217" SrcFileId="1" StartOffset="171"/>
+</LocList>
+</HierarchyLvl>
+</HierarchyLvl>
+</HierarchyLvl>
+</HierarchyLvl>
+</HierarchyLvl>
+</HierarchyLvl>
+</HierarchyLvl>
+</MASTRoot>
+</TestSessionContainer>

@@ -1,0 +1,1167 @@
+<?xml version="1.0" encoding="UTF-8"?><TestSessionContainer xmlns="http://www.codecover.org/xml/testsession-container" Date="1464174415526" TestSessionContainerId="f2cfa46f-6a4e-4c40-9903-43248600126a" version="1.0">
+<SrcFileList>
+<SrcFile Content="package haodong.detection.step.algo;&#10;&#10;import java.util.ArrayList;&#10;&#10;public interface IStepAlgo {&#10;&#10;&#9;public void feedData(float acc_total);&#10;&#9;&#10;&#9;public int getStepResult();&#10;&#9;&#10;&#9;public ArrayList&lt;Integer&gt; getStepResultList();&#10;}&#10;" Filename="IStepAlgo.java" Intrnl_Id="1"/>
+<SrcFile Content="package haodong.detection.step.algo;&#10;&#10;import java.util.ArrayList;&#10;&#10;public class StepBonusAlgo implements IStepAlgo{&#10;&#10;&#9;public StepBonusAlgo(){&#10;&#9;&#9;&#10;&#9;}&#10;&#9;&#10;&#9;@Override&#10;&#9;public void feedData(float acc_total) {&#10;&#9;&#9;&#10;&#9;}&#9;&#10;&#10;&#9;@Override&#10;&#9;public int getStepResult() {&#10;&#9;&#9;return 0;&#10;&#9;}&#10;&#10;&#9;@Override&#10;&#9;public ArrayList&lt;Integer&gt; getStepResultList() {&#10;&#9;&#9;return null;&#10;&#9;}&#10;}&#10;" Filename="StepBonusAlgo.java" Intrnl_Id="2"/>
+<SrcFile Content="package haodong.detection.step.algo;&#10;&#10;import java.util.ArrayList;&#10;import java.util.Collections;&#10;&#10;public class StepFilterAlgo implements IStepAlgo{&#10;&#9;&#10;&#9;private ArrayList&lt;Float&gt; accTotal;&#10;&#9;&#10;&#9;private ArrayList&lt;ArrayList&lt;Float&gt;&gt; accFilter;&#10;&#9;&#10;&#9;private ArrayList&lt;Integer&gt; resultStep;&#10;&#9;&#10;&#9;private int lastStep = 0;&#10;&#9;&#10;&#9;public static final int section = 300;&#10;&#9;&#10;&#9;private int size = 0;&#10;&#9;&#10;&#9;private int wsSmooth0 = 11; &#10;&#9;&#10;&#9;private int wsSmooth1Half = 10; &#10;&#9;&#10;    private int wsPeak = 11; //windows size of peak detection //14,15&#10;&#9;&#10;&#9;private float peakJudge = 0.052f;&#10;&#9;&#10;&#9;private int totalSampleNum = 0;&#10;&#9;&#10;&#9;private boolean isDetected;&#10;&#9;&#10;&#9;private float alpha = 0.25f;&#10;&#9;&#10;&#9;public StepFilterAlgo() {&#10;&#9;&#9;accTotal = new ArrayList&lt;Float&gt;();&#10;&#9;&#9;accFilter = new ArrayList&lt;ArrayList&lt;Float&gt;&gt;();&#10;&#9;&#9;resultStep = new ArrayList&lt;Integer&gt;();&#10;&#9;&#9;resultStep.add(0);&#10;&#9;}&#10;&#9;&#10;&#9;@Override&#10;&#9;public void feedData(float acc_total) {&#10;&#9;&#9;isDetected = false;&#10;&#9;&#9;accTotal.add(acc_total);&#10;&#9;&#9;size = accTotal.size();&#10;&#9;&#9;totalSampleNum++;&#10;&#9;&#9;if(size == section){&#10;&#9;&#9;&#9;accTotal.remove(0);&#10;&#9;&#9;&#9;accFilter.remove(0);&#10;&#9;&#9;&#9;size = accTotal.size();&#10;&#9;&#9;}&#10;&#9;&#9;stepDetection();&#10;&#9;}&#10;&#9;&#10;&#9;public void reset(){&#10;&#9;&#9;accTotal = new ArrayList&lt;Float&gt;();&#10;&#9;&#9;accFilter = new ArrayList&lt;ArrayList&lt;Float&gt;&gt;();&#10;&#9;&#9;resultStep = new ArrayList&lt;Integer&gt;();&#10;&#9;&#9;resultStep.add(0);&#10;&#9;&#9;totalSampleNum = 0;&#10;&#9;&#9;size = 0;&#10;&#9;}&#10;&#9;&#10;&#9;private void stepDetection(){&#10;&#9;&#9;ArrayList&lt;Float&gt; accFilterTmp = new ArrayList&lt;Float&gt;();&#10;        accFilterTmp.add(accTotal.get(size - 1));&#10;        accFilterTmp.add(0.0f);&#10;        accFilterTmp.add(0.0f);&#10;        accFilter.add(accFilterTmp);&#10;        resultStep.add(resultStep.get(resultStep.size() - 1)); //add the last one&#10;        &#10;        if(size &gt; wsSmooth0){&#10;        &#9;ArrayList&lt;Float&gt; tmpSmooth0 = new ArrayList&lt;Float&gt;();&#10;        &#9;for(int j = size; j &gt;= size - wsSmooth0 + 1; j--){&#10;        &#9;&#9;tmpSmooth0.add(accTotal.get(size-1));&#10;        &#9;}&#10;        &#9;Collections.sort(tmpSmooth0);&#10;        &#9;int tmpi = (wsSmooth0 - 1) / 2;&#10;        &#9;accFilter.get(size - tmpi - 1).set(0, tmpSmooth0.get(tmpi));&#10;        }&#10;        if(size &gt;= wsSmooth1Half + 2){&#10;        &#9;int j = size - wsSmooth1Half;&#10;        &#9;int length = accFilter.size();&#10;        &#9;int tmp_i;&#10;        &#9;float avg1 = 0;&#10;        &#9;float avg2 = 0;&#10;        &#9;for(tmp_i = 0; tmp_i &lt;= wsSmooth1Half - 1; tmp_i++){&#10;        &#9;&#9;avg2 += accFilter.get(length - tmp_i - 1).get(0);&#10;        &#9;}&#10;        &#9;avg2 = avg2 / tmp_i;&#10;        &#9;float middle = accFilter.get(length - tmp_i - 1).get(0);&#10;        &#9;tmp_i++;&#10;        &#9;while (tmp_i &lt; Math.min(length, 2 * wsSmooth1Half + 1)) {&#10;                avg1 += accFilter.get(length - tmp_i - 1).get(0);&#10;                tmp_i++;&#10;            }&#10;        &#9;avg1 = avg1 / (tmp_i - wsSmooth1Half - 1);&#10;        &#9;accFilter.get(j - 1).set(1, (float) (2 * middle - avg1 - avg2));&#10;        &#9;//low pass filter&#10;        &#9;accFilter.get(j - 1).set(2, accFilter.get(j - 2).get(2) + alpha * (accFilter.get(j - 1).get(1) - accFilter.get(j - 2).get(2)));&#10;        &#9;// peak detection&#10;            if ((j &gt;= 2 * wsPeak + 1) &amp;&amp; (accFilter.get(j - wsPeak - 1).get(1) &gt; peakJudge)) {&#10;                ArrayList&lt;Float&gt; tmpPeakDetection = new ArrayList&lt;Float&gt;();&#10;                for (int tmp_j = 1; tmp_j &lt;= 2 * wsPeak + 1; tmp_j++) {&#10;                    tmpPeakDetection.add(accFilter.get(j - tmp_j).get(2));&#10;                }&#10;                Collections.sort(tmpPeakDetection);&#10;                if (tmpPeakDetection.get(tmpPeakDetection.size() - 1) == accFilter.get(j - wsPeak - 1).get(2)) {&#10;                    isDetected = true;&#10;                }&#10;            }&#10;            int tmp = totalSampleNum - wsSmooth1Half;&#10;&#10;            if (isDetected) {&#10;                resultStep.set(tmp - wsPeak - 1, resultStep.get(tmp - wsPeak - 2) + 1);&#10;                lastStep = resultStep.get(tmp - wsPeak - 1);&#10;            } else if (tmp &gt; wsPeak + 1) {&#10;                resultStep.set(tmp - wsPeak - 1, resultStep.get(tmp - wsPeak - 2));&#10;            }&#10;        }&#10;        else {&#10;            accFilter.get(size - 1).set(1, accFilter.get(size - 1).get(0));&#10;        }&#10;&#9;}&#10;&#10;&#9;@Override&#10;&#9;public int getStepResult() {&#10;&#9;&#9;return lastStep;&#10;&#9;}&#10;&#10;&#9;@Override&#10;&#9;public ArrayList&lt;Integer&gt; getStepResultList() {&#10;&#9;&#9;return resultStep;&#10;&#9;}&#10;&#10;}&#10;" Filename="StepFilterAlgo.java" Intrnl_Id="3"/>
+<SrcFile Content="package haodong.detection.step.algo;&#10;&#10;import java.util.ArrayList;&#10;&#10;public class StepPeakAlgo implements IStepAlgo{&#10;&#10;&#9;private float peakThreshold = 1.2f;&#10;&#9;&#10;&#9;private float peakInterval = 1.5f; &#10;&#9;&#10;&#9;private long lastTime = 0;&#10;&#9;&#10;&#9;private int stepTotal = 0;&#10;&#9;&#10;&#9;private float currentPeakResult = 0;&#10;&#9;&#10;&#9;public StepPeakAlgo(){&#10;&#9;&#9;&#10;&#9;}&#10;&#9;&#10;&#9;@Override&#10;&#9;public void feedData(float acc_total){&#10;&#9;&#9;currentPeakResult = acc_total;&#10;&#9;}&#10;&#9;&#10;&#9;@Override&#10;&#9;public int getStepResult(){&#10;&#9;&#9;if(System.currentTimeMillis() - lastTime &gt; peakInterval * 1000){&#10;&#9;&#9;&#9;if(currentPeakResult &gt; peakThreshold){&#10;&#9;&#9;&#9;&#9;lastTime = System.currentTimeMillis();&#10;&#9;&#9;&#9;&#9;stepTotal++;&#10;&#9;&#9;&#9;&#9;currentPeakResult = 0;&#10;&#9;&#9;&#9;}&#10;&#9;&#9;}&#10;&#9;&#9;return stepTotal;&#10;&#9;}&#10;&#10;&#9;public float getPeakInterval() {&#10;&#9;&#9;return peakInterval;&#10;&#9;}&#10;&#10;&#9;public void setPeakInterval(float peakInterval) {&#10;&#9;&#9;this.peakInterval = peakInterval;&#10;&#9;}&#10;&#10;&#9;public float getPeakThreshold() {&#10;&#9;&#9;return peakThreshold;&#10;&#9;}&#10;&#10;&#9;public void setPeakThreshold(float peakThreshold) {&#10;&#9;&#9;this.peakThreshold = peakThreshold;&#10;&#9;}&#10;&#10;&#9;@Override&#10;&#9;public ArrayList&lt;Integer&gt; getStepResultList() {&#10;&#9;&#9;return null;&#10;&#9;}&#10;}&#10;" Filename="StepPeakAlgo.java" Intrnl_Id="4"/>
+</SrcFileList>
+<CritList>
+<CritListEntry Name="org.codecover.model.utils.criteria.LoopCoverage" PluginName="org.codecover"/>
+<CritListEntry Name="org.codecover.model.utils.criteria.QMOCoverage" PluginName="org.codecover"/>
+<CritListEntry Name="org.codecover.model.utils.criteria.ConditionCoverage" PluginName="org.codecover"/>
+<CritListEntry Name="org.codecover.model.utils.criteria.BranchCoverage" PluginName="org.codecover"/>
+<CritListEntry Name="org.codecover.model.utils.criteria.SynchronizedStatementCoverage" PluginName="org.codecover"/>
+<CritListEntry Name="org.codecover.model.utils.criteria.StatementCoverage" PluginName="org.codecover"/>
+</CritList>
+<BoolOpList>
+<BoolOp Arity="2" Intrnl_Id="5" Name="conditional and (&amp;&amp;)">
+<BoolAssgnmntBoolMapList>
+<MapEntry BoolAssgnmnt="02" Value="false"/>
+<MapEntry BoolAssgnmnt="10" Value="false"/>
+<MapEntry BoolAssgnmnt="11" Value="true"/>
+</BoolAssgnmntBoolMapList>
+</BoolOp>
+</BoolOpList>
+<HierarchyLvlTypeList>
+<HierarchyLvlType EnglishName="package" IntrnlName="package" Intrnl_Id="6"/>
+<HierarchyLvlType EnglishName="interface" IntrnlName="interface" Intrnl_Id="7"/>
+<HierarchyLvlType EnglishName="method" IntrnlName="method" Intrnl_Id="8"/>
+<HierarchyLvlType EnglishName="class" IntrnlName="class" Intrnl_Id="9"/>
+<HierarchyLvlType EnglishName="default package" IntrnlName="default package" Intrnl_Id="10"/>
+</HierarchyLvlTypeList>
+<MASTRoot>
+<HierarchyLvl HierarchyLvlId="220" HierarchyLvlTypeId="10" Intrnl_Id="11" Name="default package">
+<Header/>
+<LocList/>
+<HierarchyLvl HierarchyLvlId="219" HierarchyLvlTypeId="6" Intrnl_Id="12" Name="haodong">
+<Header/>
+<LocList/>
+<HierarchyLvl HierarchyLvlId="218" HierarchyLvlTypeId="6" Intrnl_Id="13" Name="detection">
+<Header/>
+<LocList/>
+<HierarchyLvl HierarchyLvlId="217" HierarchyLvlTypeId="6" Intrnl_Id="14" Name="step">
+<Header/>
+<LocList/>
+<HierarchyLvl HierarchyLvlId="216" HierarchyLvlTypeId="6" Intrnl_Id="15" Name="algo">
+<Header/>
+<LocList/>
+<HierarchyLvl HierarchyLvlId="194" HierarchyLvlTypeId="7" Intrnl_Id="16" Name="IStepAlgo">
+<Header>
+<Loc EndOffset="93" SrcFileId="1" StartOffset="67"/>
+</Header>
+<LocList>
+<Loc EndOffset="219" SrcFileId="1" StartOffset="67"/>
+</LocList>
+<HierarchyLvl HierarchyLvlId="191" HierarchyLvlTypeId="8" Intrnl_Id="17" Name="feedData">
+<Header>
+<Loc EndOffset="135" SrcFileId="1" StartOffset="98"/>
+</Header>
+<LocList>
+<Loc EndOffset="136" SrcFileId="1" StartOffset="98"/>
+</LocList>
+</HierarchyLvl>
+<HierarchyLvl HierarchyLvlId="192" HierarchyLvlTypeId="8" Intrnl_Id="18" Name="getStepResult">
+<Header>
+<Loc EndOffset="166" SrcFileId="1" StartOffset="140"/>
+</Header>
+<LocList>
+<Loc EndOffset="167" SrcFileId="1" StartOffset="140"/>
+</LocList>
+</HierarchyLvl>
+<HierarchyLvl HierarchyLvlId="193" HierarchyLvlTypeId="8" Intrnl_Id="19" Name="getStepResultList">
+<Header>
+<Loc EndOffset="216" SrcFileId="1" StartOffset="171"/>
+</Header>
+<LocList>
+<Loc EndOffset="217" SrcFileId="1" StartOffset="171"/>
+</LocList>
+</HierarchyLvl>
+</HierarchyLvl>
+<HierarchyLvl HierarchyLvlId="199" HierarchyLvlTypeId="9" Intrnl_Id="20" Name="StepBonusAlgo">
+<Header>
+<Loc EndOffset="114" SrcFileId="2" StartOffset="67"/>
+</Header>
+<LocList>
+<Loc EndOffset="346" SrcFileId="2" StartOffset="67"/>
+</LocList>
+<HierarchyLvl HierarchyLvlId="195" HierarchyLvlTypeId="8" Intrnl_Id="21" Name="StepBonusAlgo">
+<Header>
+<Loc EndOffset="140" SrcFileId="2" StartOffset="118"/>
+</Header>
+<LocList>
+<Loc EndOffset="147" SrcFileId="2" StartOffset="118"/>
+</LocList>
+</HierarchyLvl>
+<HierarchyLvl HierarchyLvlId="196" HierarchyLvlTypeId="8" Intrnl_Id="22" Name="feedData">
+<Header>
+<Loc EndOffset="199" SrcFileId="2" StartOffset="151"/>
+</Header>
+<LocList>
+<Loc EndOffset="207" SrcFileId="2" StartOffset="151"/>
+</LocList>
+</HierarchyLvl>
+<HierarchyLvl HierarchyLvlId="197" HierarchyLvlTypeId="8" Intrnl_Id="23" Name="getStepResult">
+<Header>
+<Loc EndOffset="248" SrcFileId="2" StartOffset="211"/>
+</Header>
+<LocList>
+<Loc EndOffset="265" SrcFileId="2" StartOffset="211"/>
+</LocList>
+<StmntSeq Intrnl_Id="24">
+<LocList>
+<Loc EndOffset="262" SrcFileId="2" StartOffset="253"/>
+</LocList>
+<BasicStmnt CovItemId="S1" CovItemPrefix="haodong.detection.step.algo.StepBonusAlgo.java" Intrnl_Id="25">
+<LocList>
+<Loc EndOffset="262" SrcFileId="2" StartOffset="253"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+</HierarchyLvl>
+<HierarchyLvl HierarchyLvlId="198" HierarchyLvlTypeId="8" Intrnl_Id="26" Name="getStepResultList">
+<Header>
+<Loc EndOffset="324" SrcFileId="2" StartOffset="268"/>
+</Header>
+<LocList>
+<Loc EndOffset="344" SrcFileId="2" StartOffset="268"/>
+</LocList>
+<StmntSeq Intrnl_Id="27">
+<LocList>
+<Loc EndOffset="341" SrcFileId="2" StartOffset="329"/>
+</LocList>
+<BasicStmnt CovItemId="S2" CovItemPrefix="haodong.detection.step.algo.StepBonusAlgo.java" Intrnl_Id="28">
+<LocList>
+<Loc EndOffset="341" SrcFileId="2" StartOffset="329"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+</HierarchyLvl>
+</HierarchyLvl>
+<HierarchyLvl HierarchyLvlId="206" HierarchyLvlTypeId="9" Intrnl_Id="29" Name="StepFilterAlgo">
+<Header>
+<Loc EndOffset="145" SrcFileId="3" StartOffset="97"/>
+</Header>
+<LocList>
+<Loc EndOffset="4150" SrcFileId="3" StartOffset="97"/>
+</LocList>
+<StmntSeq Intrnl_Id="30">
+<LocList>
+<Loc EndOffset="305" SrcFileId="3" StartOffset="280"/>
+<Loc EndOffset="347" SrcFileId="3" StartOffset="309"/>
+<Loc EndOffset="372" SrcFileId="3" StartOffset="351"/>
+<Loc EndOffset="403" SrcFileId="3" StartOffset="376"/>
+<Loc EndOffset="439" SrcFileId="3" StartOffset="408"/>
+<Loc EndOffset="471" SrcFileId="3" StartOffset="447"/>
+<Loc EndOffset="549" SrcFileId="3" StartOffset="516"/>
+<Loc EndOffset="584" SrcFileId="3" StartOffset="553"/>
+<Loc EndOffset="647" SrcFileId="3" StartOffset="619"/>
+</LocList>
+<BasicStmnt CovItemId="S1" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="31">
+<LocList>
+<Loc EndOffset="305" SrcFileId="3" StartOffset="280"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S2" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="32">
+<LocList>
+<Loc EndOffset="347" SrcFileId="3" StartOffset="309"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S3" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="33">
+<LocList>
+<Loc EndOffset="372" SrcFileId="3" StartOffset="351"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S4" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="34">
+<LocList>
+<Loc EndOffset="403" SrcFileId="3" StartOffset="376"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S5" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="35">
+<LocList>
+<Loc EndOffset="439" SrcFileId="3" StartOffset="408"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S6" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="36">
+<LocList>
+<Loc EndOffset="471" SrcFileId="3" StartOffset="447"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S7" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="37">
+<LocList>
+<Loc EndOffset="549" SrcFileId="3" StartOffset="516"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S8" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="38">
+<LocList>
+<Loc EndOffset="584" SrcFileId="3" StartOffset="553"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S9" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="39">
+<LocList>
+<Loc EndOffset="647" SrcFileId="3" StartOffset="619"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+<HierarchyLvl HierarchyLvlId="200" HierarchyLvlTypeId="8" Intrnl_Id="40" Name="StepFilterAlgo">
+<Header>
+<Loc EndOffset="674" SrcFileId="3" StartOffset="651"/>
+</Header>
+<LocList>
+<Loc EndOffset="827" SrcFileId="3" StartOffset="651"/>
+</LocList>
+<StmntSeq Intrnl_Id="41">
+<LocList>
+<Loc EndOffset="713" SrcFileId="3" StartOffset="679"/>
+<Loc EndOffset="762" SrcFileId="3" StartOffset="716"/>
+<Loc EndOffset="803" SrcFileId="3" StartOffset="765"/>
+<Loc EndOffset="824" SrcFileId="3" StartOffset="806"/>
+</LocList>
+<BasicStmnt CovItemId="S10" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="42">
+<LocList>
+<Loc EndOffset="713" SrcFileId="3" StartOffset="679"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S11" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="43">
+<LocList>
+<Loc EndOffset="762" SrcFileId="3" StartOffset="716"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S12" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="44">
+<LocList>
+<Loc EndOffset="803" SrcFileId="3" StartOffset="765"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S13" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="45">
+<LocList>
+<Loc EndOffset="824" SrcFileId="3" StartOffset="806"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+</HierarchyLvl>
+<HierarchyLvl HierarchyLvlId="201" HierarchyLvlTypeId="8" Intrnl_Id="46" Name="feedData">
+<Header>
+<Loc EndOffset="879" SrcFileId="3" StartOffset="831"/>
+</Header>
+<LocList>
+<Loc EndOffset="1099" SrcFileId="3" StartOffset="831"/>
+</LocList>
+<StmntSeq Intrnl_Id="47">
+<LocList>
+<Loc EndOffset="903" SrcFileId="3" StartOffset="884"/>
+<Loc EndOffset="930" SrcFileId="3" StartOffset="906"/>
+<Loc EndOffset="956" SrcFileId="3" StartOffset="933"/>
+<Loc EndOffset="976" SrcFileId="3" StartOffset="959"/>
+<Loc EndOffset="1077" SrcFileId="3" StartOffset="979"/>
+<Loc EndOffset="1096" SrcFileId="3" StartOffset="1080"/>
+</LocList>
+<BasicStmnt CovItemId="S14" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="48">
+<LocList>
+<Loc EndOffset="903" SrcFileId="3" StartOffset="884"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S15" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="49">
+<LocList>
+<Loc EndOffset="930" SrcFileId="3" StartOffset="906"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S16" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="50">
+<LocList>
+<Loc EndOffset="956" SrcFileId="3" StartOffset="933"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S17" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="51">
+<LocList>
+<Loc EndOffset="976" SrcFileId="3" StartOffset="959"/>
+</LocList>
+</BasicStmnt>
+<CondStmnt CovItemId="S18" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="52">
+<Branch CovItemId="B1" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Implct="false" Intrnl_Id="53">
+<Cond/>
+<LocList>
+<Loc EndOffset="1077" SrcFileId="3" StartOffset="998"/>
+</LocList>
+<StmntSeq Intrnl_Id="54">
+<LocList>
+<Loc EndOffset="1022" SrcFileId="3" StartOffset="1003"/>
+<Loc EndOffset="1046" SrcFileId="3" StartOffset="1026"/>
+<Loc EndOffset="1073" SrcFileId="3" StartOffset="1050"/>
+</LocList>
+<BasicStmnt CovItemId="S19" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="55">
+<LocList>
+<Loc EndOffset="1022" SrcFileId="3" StartOffset="1003"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S20" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="56">
+<LocList>
+<Loc EndOffset="1046" SrcFileId="3" StartOffset="1026"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S21" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="57">
+<LocList>
+<Loc EndOffset="1073" SrcFileId="3" StartOffset="1050"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+</Branch>
+<Branch CovItemId="B2" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Implct="true" Intrnl_Id="58">
+<Cond/>
+<LocList/>
+<StmntSeq Intrnl_Id="59">
+<LocList/>
+</StmntSeq>
+</Branch>
+<Keyword EndOffset="981" SrcFileId="3" StartOffset="979"/>
+<LocList>
+<Loc EndOffset="1077" SrcFileId="3" StartOffset="979"/>
+</LocList>
+<RootTerm CovItemId="C1" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="60">
+<BasicBoolTerm Intrnl_Id="61">
+<LocList>
+<Loc EndOffset="997" SrcFileId="3" StartOffset="982"/>
+</LocList>
+</BasicBoolTerm>
+</RootTerm>
+</CondStmnt>
+<BasicStmnt CovItemId="S22" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="62">
+<LocList>
+<Loc EndOffset="1096" SrcFileId="3" StartOffset="1080"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+</HierarchyLvl>
+<HierarchyLvl HierarchyLvlId="202" HierarchyLvlTypeId="8" Intrnl_Id="63" Name="reset">
+<Header>
+<Loc EndOffset="1122" SrcFileId="3" StartOffset="1103"/>
+</Header>
+<LocList>
+<Loc EndOffset="1308" SrcFileId="3" StartOffset="1103"/>
+</LocList>
+<StmntSeq Intrnl_Id="64">
+<LocList>
+<Loc EndOffset="1160" SrcFileId="3" StartOffset="1126"/>
+<Loc EndOffset="1209" SrcFileId="3" StartOffset="1163"/>
+<Loc EndOffset="1250" SrcFileId="3" StartOffset="1212"/>
+<Loc EndOffset="1271" SrcFileId="3" StartOffset="1253"/>
+<Loc EndOffset="1293" SrcFileId="3" StartOffset="1274"/>
+<Loc EndOffset="1305" SrcFileId="3" StartOffset="1296"/>
+</LocList>
+<BasicStmnt CovItemId="S23" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="65">
+<LocList>
+<Loc EndOffset="1160" SrcFileId="3" StartOffset="1126"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S24" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="66">
+<LocList>
+<Loc EndOffset="1209" SrcFileId="3" StartOffset="1163"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S25" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="67">
+<LocList>
+<Loc EndOffset="1250" SrcFileId="3" StartOffset="1212"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S26" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="68">
+<LocList>
+<Loc EndOffset="1271" SrcFileId="3" StartOffset="1253"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S27" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="69">
+<LocList>
+<Loc EndOffset="1293" SrcFileId="3" StartOffset="1274"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S28" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="70">
+<LocList>
+<Loc EndOffset="1305" SrcFileId="3" StartOffset="1296"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+</HierarchyLvl>
+<HierarchyLvl HierarchyLvlId="203" HierarchyLvlTypeId="8" Intrnl_Id="71" Name="stepDetection">
+<Header>
+<Loc EndOffset="1340" SrcFileId="3" StartOffset="1312"/>
+</Header>
+<LocList>
+<Loc EndOffset="3998" SrcFileId="3" StartOffset="1312"/>
+</LocList>
+<StmntSeq Intrnl_Id="72">
+<LocList>
+<Loc EndOffset="1399" SrcFileId="3" StartOffset="1344"/>
+<Loc EndOffset="1449" SrcFileId="3" StartOffset="1408"/>
+<Loc EndOffset="1481" SrcFileId="3" StartOffset="1458"/>
+<Loc EndOffset="1513" SrcFileId="3" StartOffset="1490"/>
+<Loc EndOffset="1550" SrcFileId="3" StartOffset="1522"/>
+<Loc EndOffset="1613" SrcFileId="3" StartOffset="1559"/>
+<Loc EndOffset="2013" SrcFileId="3" StartOffset="1650"/>
+<Loc EndOffset="3995" SrcFileId="3" StartOffset="2022"/>
+</LocList>
+<BasicStmnt CovItemId="S29" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="73">
+<LocList>
+<Loc EndOffset="1399" SrcFileId="3" StartOffset="1344"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S30" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="74">
+<LocList>
+<Loc EndOffset="1449" SrcFileId="3" StartOffset="1408"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S31" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="75">
+<LocList>
+<Loc EndOffset="1481" SrcFileId="3" StartOffset="1458"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S32" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="76">
+<LocList>
+<Loc EndOffset="1513" SrcFileId="3" StartOffset="1490"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S33" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="77">
+<LocList>
+<Loc EndOffset="1550" SrcFileId="3" StartOffset="1522"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S34" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="78">
+<LocList>
+<Loc EndOffset="1613" SrcFileId="3" StartOffset="1559"/>
+</LocList>
+</BasicStmnt>
+<CondStmnt CovItemId="S35" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="79">
+<Branch CovItemId="B3" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Implct="false" Intrnl_Id="80">
+<Cond/>
+<LocList>
+<Loc EndOffset="2013" SrcFileId="3" StartOffset="1670"/>
+</LocList>
+<StmntSeq Intrnl_Id="81">
+<LocList>
+<Loc EndOffset="1734" SrcFileId="3" StartOffset="1681"/>
+<Loc EndOffset="1853" SrcFileId="3" StartOffset="1744"/>
+<Loc EndOffset="1892" SrcFileId="3" StartOffset="1863"/>
+<Loc EndOffset="1933" SrcFileId="3" StartOffset="1902"/>
+<Loc EndOffset="2003" SrcFileId="3" StartOffset="1943"/>
+</LocList>
+<BasicStmnt CovItemId="S36" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="82">
+<LocList>
+<Loc EndOffset="1734" SrcFileId="3" StartOffset="1681"/>
+</LocList>
+</BasicStmnt>
+<LoopStmnt CovItemId="S37" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="83" MltplExecId="L1-2" MltplExecPrefix="haodong.detection.step.algo.StepFilterAlgo.java" NvrExecId="L1-0" NvrExecPrefix="haodong.detection.step.algo.StepFilterAlgo.java" OnceExecutedId="L1-1" OnceExecutedPrefix="haodong.detection.step.algo.StepFilterAlgo.java" OptBodyExec="true">
+<StmntSeq Intrnl_Id="84">
+<LocList>
+<Loc EndOffset="1842" SrcFileId="3" StartOffset="1805"/>
+</LocList>
+<BasicStmnt CovItemId="S38" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="85">
+<LocList>
+<Loc EndOffset="1842" SrcFileId="3" StartOffset="1805"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+<Keyword EndOffset="1747" SrcFileId="3" StartOffset="1744"/>
+<LocList>
+<Loc EndOffset="1853" SrcFileId="3" StartOffset="1744"/>
+</LocList>
+<RootTerm CovItemId="C3" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="86">
+<BasicBoolTerm Intrnl_Id="87">
+<LocList>
+<Loc EndOffset="1787" SrcFileId="3" StartOffset="1762"/>
+</LocList>
+</BasicBoolTerm>
+</RootTerm>
+</LoopStmnt>
+<BasicStmnt CovItemId="S39" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="88">
+<LocList>
+<Loc EndOffset="1892" SrcFileId="3" StartOffset="1863"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S40" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="89">
+<LocList>
+<Loc EndOffset="1933" SrcFileId="3" StartOffset="1902"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S41" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="90">
+<LocList>
+<Loc EndOffset="2003" SrcFileId="3" StartOffset="1943"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+</Branch>
+<Branch CovItemId="B4" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Implct="true" Intrnl_Id="91">
+<Cond/>
+<LocList/>
+<StmntSeq Intrnl_Id="92">
+<LocList/>
+</StmntSeq>
+</Branch>
+<Keyword EndOffset="1652" SrcFileId="3" StartOffset="1650"/>
+<LocList>
+<Loc EndOffset="2013" SrcFileId="3" StartOffset="1650"/>
+</LocList>
+<RootTerm CovItemId="C2" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="93">
+<BasicBoolTerm Intrnl_Id="94">
+<LocList>
+<Loc EndOffset="1669" SrcFileId="3" StartOffset="1653"/>
+</LocList>
+</BasicBoolTerm>
+</RootTerm>
+</CondStmnt>
+<CondStmnt CovItemId="S42" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="95">
+<Branch CovItemId="B5" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Implct="false" Intrnl_Id="96">
+<Cond/>
+<LocList>
+<Loc EndOffset="3894" SrcFileId="3" StartOffset="2051"/>
+</LocList>
+<StmntSeq Intrnl_Id="97">
+<LocList>
+<Loc EndOffset="2091" SrcFileId="3" StartOffset="2062"/>
+<Loc EndOffset="2131" SrcFileId="3" StartOffset="2101"/>
+<Loc EndOffset="2176" SrcFileId="3" StartOffset="2161"/>
+<Loc EndOffset="2201" SrcFileId="3" StartOffset="2186"/>
+<Loc EndOffset="2334" SrcFileId="3" StartOffset="2211"/>
+<Loc EndOffset="2364" SrcFileId="3" StartOffset="2344"/>
+<Loc EndOffset="2430" SrcFileId="3" StartOffset="2374"/>
+<Loc EndOffset="2448" SrcFileId="3" StartOffset="2440"/>
+<Loc EndOffset="2620" SrcFileId="3" StartOffset="2458"/>
+<Loc EndOffset="2672" SrcFileId="3" StartOffset="2630"/>
+<Loc EndOffset="2746" SrcFileId="3" StartOffset="2682"/>
+<Loc EndOffset="2910" SrcFileId="3" StartOffset="2783"/>
+<Loc EndOffset="3509" SrcFileId="3" StartOffset="2950"/>
+<Loc EndOffset="3563" SrcFileId="3" StartOffset="3522"/>
+<Loc EndOffset="3884" SrcFileId="3" StartOffset="3577"/>
+</LocList>
+<BasicStmnt CovItemId="S43" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="98">
+<LocList>
+<Loc EndOffset="2091" SrcFileId="3" StartOffset="2062"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S44" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="99">
+<LocList>
+<Loc EndOffset="2131" SrcFileId="3" StartOffset="2101"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S45" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="100">
+<LocList>
+<Loc EndOffset="2176" SrcFileId="3" StartOffset="2161"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S46" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="101">
+<LocList>
+<Loc EndOffset="2201" SrcFileId="3" StartOffset="2186"/>
+</LocList>
+</BasicStmnt>
+<LoopStmnt CovItemId="S47" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="102" MltplExecId="L2-2" MltplExecPrefix="haodong.detection.step.algo.StepFilterAlgo.java" NvrExecId="L2-0" NvrExecPrefix="haodong.detection.step.algo.StepFilterAlgo.java" OnceExecutedId="L2-1" OnceExecutedPrefix="haodong.detection.step.algo.StepFilterAlgo.java" OptBodyExec="true">
+<StmntSeq Intrnl_Id="103">
+<LocList>
+<Loc EndOffset="2323" SrcFileId="3" StartOffset="2274"/>
+</LocList>
+<BasicStmnt CovItemId="S48" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="104">
+<LocList>
+<Loc EndOffset="2323" SrcFileId="3" StartOffset="2274"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+<Keyword EndOffset="2214" SrcFileId="3" StartOffset="2211"/>
+<LocList>
+<Loc EndOffset="2334" SrcFileId="3" StartOffset="2211"/>
+</LocList>
+<RootTerm CovItemId="C5" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="105">
+<BasicBoolTerm Intrnl_Id="106">
+<LocList>
+<Loc EndOffset="2252" SrcFileId="3" StartOffset="2226"/>
+</LocList>
+</BasicBoolTerm>
+</RootTerm>
+</LoopStmnt>
+<BasicStmnt CovItemId="S49" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="107">
+<LocList>
+<Loc EndOffset="2364" SrcFileId="3" StartOffset="2344"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S50" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="108">
+<LocList>
+<Loc EndOffset="2430" SrcFileId="3" StartOffset="2374"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S51" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="109">
+<LocList>
+<Loc EndOffset="2448" SrcFileId="3" StartOffset="2440"/>
+</LocList>
+</BasicStmnt>
+<LoopStmnt CovItemId="S52" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="110" MltplExecId="L3-2" MltplExecPrefix="haodong.detection.step.algo.StepFilterAlgo.java" NvrExecId="L3-0" NvrExecPrefix="haodong.detection.step.algo.StepFilterAlgo.java" OnceExecutedId="L3-1" OnceExecutedPrefix="haodong.detection.step.algo.StepFilterAlgo.java" OptBodyExec="true">
+<StmntSeq Intrnl_Id="111">
+<LocList>
+<Loc EndOffset="2581" SrcFileId="3" StartOffset="2532"/>
+<Loc EndOffset="2606" SrcFileId="3" StartOffset="2598"/>
+</LocList>
+<BasicStmnt CovItemId="S53" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="112">
+<LocList>
+<Loc EndOffset="2581" SrcFileId="3" StartOffset="2532"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S54" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="113">
+<LocList>
+<Loc EndOffset="2606" SrcFileId="3" StartOffset="2598"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+<Keyword EndOffset="2463" SrcFileId="3" StartOffset="2458"/>
+<LocList>
+<Loc EndOffset="2620" SrcFileId="3" StartOffset="2458"/>
+</LocList>
+<RootTerm CovItemId="C6" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="114">
+<BasicBoolTerm Intrnl_Id="115">
+<LocList>
+<Loc EndOffset="2512" SrcFileId="3" StartOffset="2465"/>
+</LocList>
+</BasicBoolTerm>
+</RootTerm>
+</LoopStmnt>
+<BasicStmnt CovItemId="S55" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="116">
+<LocList>
+<Loc EndOffset="2672" SrcFileId="3" StartOffset="2630"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S56" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="117">
+<LocList>
+<Loc EndOffset="2746" SrcFileId="3" StartOffset="2682"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S57" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="118">
+<LocList>
+<Loc EndOffset="2910" SrcFileId="3" StartOffset="2783"/>
+</LocList>
+</BasicStmnt>
+<CondStmnt CovItemId="S58" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="119">
+<Branch CovItemId="B7" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Implct="false" Intrnl_Id="120">
+<Cond/>
+<LocList>
+<Loc EndOffset="3509" SrcFileId="3" StartOffset="3031"/>
+</LocList>
+<StmntSeq Intrnl_Id="121">
+<LocList>
+<Loc EndOffset="3108" SrcFileId="3" StartOffset="3049"/>
+<Loc EndOffset="3273" SrcFileId="3" StartOffset="3125"/>
+<Loc EndOffset="3325" SrcFileId="3" StartOffset="3290"/>
+<Loc EndOffset="3495" SrcFileId="3" StartOffset="3342"/>
+</LocList>
+<BasicStmnt CovItemId="S59" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="122">
+<LocList>
+<Loc EndOffset="3108" SrcFileId="3" StartOffset="3049"/>
+</LocList>
+</BasicStmnt>
+<LoopStmnt CovItemId="S60" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="123" MltplExecId="L4-2" MltplExecPrefix="haodong.detection.step.algo.StepFilterAlgo.java" NvrExecId="L4-0" NvrExecPrefix="haodong.detection.step.algo.StepFilterAlgo.java" OnceExecutedId="L4-1" OnceExecutedPrefix="haodong.detection.step.algo.StepFilterAlgo.java" OptBodyExec="true">
+<StmntSeq Intrnl_Id="124">
+<LocList>
+<Loc EndOffset="3255" SrcFileId="3" StartOffset="3201"/>
+</LocList>
+<BasicStmnt CovItemId="S61" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="125">
+<LocList>
+<Loc EndOffset="3255" SrcFileId="3" StartOffset="3201"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+<Keyword EndOffset="3128" SrcFileId="3" StartOffset="3125"/>
+<LocList>
+<Loc EndOffset="3273" SrcFileId="3" StartOffset="3125"/>
+</LocList>
+<RootTerm CovItemId="C8" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="126">
+<BasicBoolTerm Intrnl_Id="127">
+<LocList>
+<Loc EndOffset="3168" SrcFileId="3" StartOffset="3145"/>
+</LocList>
+</BasicBoolTerm>
+</RootTerm>
+</LoopStmnt>
+<BasicStmnt CovItemId="S62" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="128">
+<LocList>
+<Loc EndOffset="3325" SrcFileId="3" StartOffset="3290"/>
+</LocList>
+</BasicStmnt>
+<CondStmnt CovItemId="S63" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="129">
+<Branch CovItemId="B9" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Implct="false" Intrnl_Id="130">
+<Cond/>
+<LocList>
+<Loc EndOffset="3495" SrcFileId="3" StartOffset="3437"/>
+</LocList>
+<StmntSeq Intrnl_Id="131">
+<LocList>
+<Loc EndOffset="3477" SrcFileId="3" StartOffset="3459"/>
+</LocList>
+<BasicStmnt CovItemId="S64" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="132">
+<LocList>
+<Loc EndOffset="3477" SrcFileId="3" StartOffset="3459"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+</Branch>
+<Branch CovItemId="B10" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Implct="true" Intrnl_Id="133">
+<Cond/>
+<LocList/>
+<StmntSeq Intrnl_Id="134">
+<LocList/>
+</StmntSeq>
+</Branch>
+<Keyword EndOffset="3344" SrcFileId="3" StartOffset="3342"/>
+<LocList>
+<Loc EndOffset="3495" SrcFileId="3" StartOffset="3342"/>
+</LocList>
+<RootTerm CovItemId="C9" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="135">
+<BasicBoolTerm Intrnl_Id="136">
+<LocList>
+<Loc EndOffset="3435" SrcFileId="3" StartOffset="3346"/>
+</LocList>
+</BasicBoolTerm>
+</RootTerm>
+</CondStmnt>
+</StmntSeq>
+</Branch>
+<Branch CovItemId="B8" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Implct="true" Intrnl_Id="137">
+<Cond/>
+<LocList/>
+<StmntSeq Intrnl_Id="138">
+<LocList/>
+</StmntSeq>
+</Branch>
+<Keyword EndOffset="2952" SrcFileId="3" StartOffset="2950"/>
+<LocList>
+<Loc EndOffset="3509" SrcFileId="3" StartOffset="2950"/>
+</LocList>
+<RootTerm CovItemId="C7" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="139">
+<OpTerm BooleanOpId="5" Intrnl_Id="140">
+<BasicBoolTerm Intrnl_Id="141">
+<LocList>
+<Loc EndOffset="2974" SrcFileId="3" StartOffset="2955"/>
+</LocList>
+</BasicBoolTerm>
+<BasicBoolTerm Intrnl_Id="142">
+<LocList>
+<Loc EndOffset="3028" SrcFileId="3" StartOffset="2980"/>
+</LocList>
+</BasicBoolTerm>
+<LocList>
+<Loc EndOffset="2978" SrcFileId="3" StartOffset="2976"/>
+</LocList>
+</OpTerm>
+</RootTerm>
+</CondStmnt>
+<BasicStmnt CovItemId="S65" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="143">
+<LocList>
+<Loc EndOffset="3563" SrcFileId="3" StartOffset="3522"/>
+</LocList>
+</BasicStmnt>
+<CondStmnt CovItemId="S66" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="144">
+<Branch CovItemId="B11" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Implct="false" Intrnl_Id="145">
+<Cond/>
+<LocList>
+<Loc EndOffset="3757" SrcFileId="3" StartOffset="3593"/>
+</LocList>
+<StmntSeq Intrnl_Id="146">
+<LocList>
+<Loc EndOffset="3682" SrcFileId="3" StartOffset="3611"/>
+<Loc EndOffset="3743" SrcFileId="3" StartOffset="3699"/>
+</LocList>
+<BasicStmnt CovItemId="S67" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="147">
+<LocList>
+<Loc EndOffset="3682" SrcFileId="3" StartOffset="3611"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S68" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="148">
+<LocList>
+<Loc EndOffset="3743" SrcFileId="3" StartOffset="3699"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+</Branch>
+<Branch CovItemId="B12" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Implct="false" Intrnl_Id="149">
+<Cond>
+<Loc EndOffset="3762" SrcFileId="3" StartOffset="3758"/>
+</Cond>
+<LocList>
+<Loc EndOffset="3884" SrcFileId="3" StartOffset="3763"/>
+</LocList>
+<StmntSeq Intrnl_Id="150">
+<LocList>
+<Loc EndOffset="3884" SrcFileId="3" StartOffset="3763"/>
+</LocList>
+<CondStmnt CovItemId="S69" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="151">
+<Branch CovItemId="B13" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Implct="false" Intrnl_Id="152">
+<Cond/>
+<LocList>
+<Loc EndOffset="3884" SrcFileId="3" StartOffset="3785"/>
+</LocList>
+<StmntSeq Intrnl_Id="153">
+<LocList>
+<Loc EndOffset="3870" SrcFileId="3" StartOffset="3803"/>
+</LocList>
+<BasicStmnt CovItemId="S70" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="154">
+<LocList>
+<Loc EndOffset="3870" SrcFileId="3" StartOffset="3803"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+</Branch>
+<Branch CovItemId="B14" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Implct="true" Intrnl_Id="155">
+<Cond/>
+<LocList/>
+<StmntSeq Intrnl_Id="156">
+<LocList/>
+</StmntSeq>
+</Branch>
+<Keyword EndOffset="3765" SrcFileId="3" StartOffset="3763"/>
+<LocList>
+<Loc EndOffset="3884" SrcFileId="3" StartOffset="3763"/>
+</LocList>
+<RootTerm CovItemId="C11" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="157">
+<BasicBoolTerm Intrnl_Id="158">
+<LocList>
+<Loc EndOffset="3783" SrcFileId="3" StartOffset="3767"/>
+</LocList>
+</BasicBoolTerm>
+</RootTerm>
+</CondStmnt>
+</StmntSeq>
+</Branch>
+<Keyword EndOffset="3579" SrcFileId="3" StartOffset="3577"/>
+<LocList>
+<Loc EndOffset="3884" SrcFileId="3" StartOffset="3577"/>
+</LocList>
+<RootTerm CovItemId="C10" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="159">
+<BasicBoolTerm Intrnl_Id="160">
+<LocList>
+<Loc EndOffset="3591" SrcFileId="3" StartOffset="3581"/>
+</LocList>
+</BasicBoolTerm>
+</RootTerm>
+</CondStmnt>
+</StmntSeq>
+</Branch>
+<Branch CovItemId="B6" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Implct="false" Intrnl_Id="161">
+<Cond>
+<Loc EndOffset="3907" SrcFileId="3" StartOffset="3903"/>
+</Cond>
+<LocList>
+<Loc EndOffset="3995" SrcFileId="3" StartOffset="3908"/>
+</LocList>
+<StmntSeq Intrnl_Id="162">
+<LocList>
+<Loc EndOffset="3985" SrcFileId="3" StartOffset="3922"/>
+</LocList>
+<BasicStmnt CovItemId="S71" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="163">
+<LocList>
+<Loc EndOffset="3985" SrcFileId="3" StartOffset="3922"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+</Branch>
+<Keyword EndOffset="2024" SrcFileId="3" StartOffset="2022"/>
+<LocList>
+<Loc EndOffset="3995" SrcFileId="3" StartOffset="2022"/>
+</LocList>
+<RootTerm CovItemId="C4" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="164">
+<BasicBoolTerm Intrnl_Id="165">
+<LocList>
+<Loc EndOffset="2050" SrcFileId="3" StartOffset="2025"/>
+</LocList>
+</BasicBoolTerm>
+</RootTerm>
+</CondStmnt>
+</StmntSeq>
+</HierarchyLvl>
+<HierarchyLvl HierarchyLvlId="204" HierarchyLvlTypeId="8" Intrnl_Id="166" Name="getStepResult">
+<Header>
+<Loc EndOffset="4038" SrcFileId="3" StartOffset="4001"/>
+</Header>
+<LocList>
+<Loc EndOffset="4062" SrcFileId="3" StartOffset="4001"/>
+</LocList>
+<StmntSeq Intrnl_Id="167">
+<LocList>
+<Loc EndOffset="4059" SrcFileId="3" StartOffset="4043"/>
+</LocList>
+<BasicStmnt CovItemId="S72" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="168">
+<LocList>
+<Loc EndOffset="4059" SrcFileId="3" StartOffset="4043"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+</HierarchyLvl>
+<HierarchyLvl HierarchyLvlId="205" HierarchyLvlTypeId="8" Intrnl_Id="169" Name="getStepResultList">
+<Header>
+<Loc EndOffset="4121" SrcFileId="3" StartOffset="4065"/>
+</Header>
+<LocList>
+<Loc EndOffset="4147" SrcFileId="3" StartOffset="4065"/>
+</LocList>
+<StmntSeq Intrnl_Id="170">
+<LocList>
+<Loc EndOffset="4144" SrcFileId="3" StartOffset="4126"/>
+</LocList>
+<BasicStmnt CovItemId="S73" CovItemPrefix="haodong.detection.step.algo.StepFilterAlgo.java" Intrnl_Id="171">
+<LocList>
+<Loc EndOffset="4144" SrcFileId="3" StartOffset="4126"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+</HierarchyLvl>
+</HierarchyLvl>
+<HierarchyLvl HierarchyLvlId="215" HierarchyLvlTypeId="9" Intrnl_Id="172" Name="StepPeakAlgo">
+<Header>
+<Loc EndOffset="113" SrcFileId="4" StartOffset="67"/>
+</Header>
+<LocList>
+<Loc EndOffset="1073" SrcFileId="4" StartOffset="67"/>
+</LocList>
+<StmntSeq Intrnl_Id="173">
+<LocList>
+<Loc EndOffset="152" SrcFileId="4" StartOffset="117"/>
+<Loc EndOffset="190" SrcFileId="4" StartOffset="156"/>
+<Loc EndOffset="221" SrcFileId="4" StartOffset="195"/>
+<Loc EndOffset="251" SrcFileId="4" StartOffset="225"/>
+<Loc EndOffset="291" SrcFileId="4" StartOffset="255"/>
+</LocList>
+<BasicStmnt CovItemId="S1" CovItemPrefix="haodong.detection.step.algo.StepPeakAlgo.java" Intrnl_Id="174">
+<LocList>
+<Loc EndOffset="152" SrcFileId="4" StartOffset="117"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S2" CovItemPrefix="haodong.detection.step.algo.StepPeakAlgo.java" Intrnl_Id="175">
+<LocList>
+<Loc EndOffset="190" SrcFileId="4" StartOffset="156"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S3" CovItemPrefix="haodong.detection.step.algo.StepPeakAlgo.java" Intrnl_Id="176">
+<LocList>
+<Loc EndOffset="221" SrcFileId="4" StartOffset="195"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S4" CovItemPrefix="haodong.detection.step.algo.StepPeakAlgo.java" Intrnl_Id="177">
+<LocList>
+<Loc EndOffset="251" SrcFileId="4" StartOffset="225"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S5" CovItemPrefix="haodong.detection.step.algo.StepPeakAlgo.java" Intrnl_Id="178">
+<LocList>
+<Loc EndOffset="291" SrcFileId="4" StartOffset="255"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+<HierarchyLvl HierarchyLvlId="207" HierarchyLvlTypeId="8" Intrnl_Id="179" Name="StepPeakAlgo">
+<Header>
+<Loc EndOffset="316" SrcFileId="4" StartOffset="295"/>
+</Header>
+<LocList>
+<Loc EndOffset="323" SrcFileId="4" StartOffset="295"/>
+</LocList>
+</HierarchyLvl>
+<HierarchyLvl HierarchyLvlId="208" HierarchyLvlTypeId="8" Intrnl_Id="180" Name="feedData">
+<Header>
+<Loc EndOffset="375" SrcFileId="4" StartOffset="327"/>
+</Header>
+<LocList>
+<Loc EndOffset="412" SrcFileId="4" StartOffset="327"/>
+</LocList>
+<StmntSeq Intrnl_Id="181">
+<LocList>
+<Loc EndOffset="409" SrcFileId="4" StartOffset="379"/>
+</LocList>
+<BasicStmnt CovItemId="S6" CovItemPrefix="haodong.detection.step.algo.StepPeakAlgo.java" Intrnl_Id="182">
+<LocList>
+<Loc EndOffset="409" SrcFileId="4" StartOffset="379"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+</HierarchyLvl>
+<HierarchyLvl HierarchyLvlId="209" HierarchyLvlTypeId="8" Intrnl_Id="183" Name="getStepResult">
+<Header>
+<Loc EndOffset="453" SrcFileId="4" StartOffset="416"/>
+</Header>
+<LocList>
+<Loc EndOffset="682" SrcFileId="4" StartOffset="416"/>
+</LocList>
+<StmntSeq Intrnl_Id="184">
+<LocList>
+<Loc EndOffset="659" SrcFileId="4" StartOffset="457"/>
+<Loc EndOffset="679" SrcFileId="4" StartOffset="662"/>
+</LocList>
+<CondStmnt CovItemId="S7" CovItemPrefix="haodong.detection.step.algo.StepPeakAlgo.java" Intrnl_Id="185">
+<Branch CovItemId="B1" CovItemPrefix="haodong.detection.step.algo.StepPeakAlgo.java" Implct="false" Intrnl_Id="186">
+<Cond/>
+<LocList>
+<Loc EndOffset="659" SrcFileId="4" StartOffset="520"/>
+</LocList>
+<StmntSeq Intrnl_Id="187">
+<LocList>
+<Loc EndOffset="655" SrcFileId="4" StartOffset="525"/>
+</LocList>
+<CondStmnt CovItemId="S8" CovItemPrefix="haodong.detection.step.algo.StepPeakAlgo.java" Intrnl_Id="188">
+<Branch CovItemId="B3" CovItemPrefix="haodong.detection.step.algo.StepPeakAlgo.java" Implct="false" Intrnl_Id="189">
+<Cond/>
+<LocList>
+<Loc EndOffset="655" SrcFileId="4" StartOffset="562"/>
+</LocList>
+<StmntSeq Intrnl_Id="190">
+<LocList>
+<Loc EndOffset="606" SrcFileId="4" StartOffset="568"/>
+<Loc EndOffset="623" SrcFileId="4" StartOffset="611"/>
+<Loc EndOffset="650" SrcFileId="4" StartOffset="628"/>
+</LocList>
+<BasicStmnt CovItemId="S9" CovItemPrefix="haodong.detection.step.algo.StepPeakAlgo.java" Intrnl_Id="191">
+<LocList>
+<Loc EndOffset="606" SrcFileId="4" StartOffset="568"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S10" CovItemPrefix="haodong.detection.step.algo.StepPeakAlgo.java" Intrnl_Id="192">
+<LocList>
+<Loc EndOffset="623" SrcFileId="4" StartOffset="611"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S11" CovItemPrefix="haodong.detection.step.algo.StepPeakAlgo.java" Intrnl_Id="193">
+<LocList>
+<Loc EndOffset="650" SrcFileId="4" StartOffset="628"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+</Branch>
+<Branch CovItemId="B4" CovItemPrefix="haodong.detection.step.algo.StepPeakAlgo.java" Implct="true" Intrnl_Id="194">
+<Cond/>
+<LocList/>
+<StmntSeq Intrnl_Id="195">
+<LocList/>
+</StmntSeq>
+</Branch>
+<Keyword EndOffset="527" SrcFileId="4" StartOffset="525"/>
+<LocList>
+<Loc EndOffset="655" SrcFileId="4" StartOffset="525"/>
+</LocList>
+<RootTerm CovItemId="C2" CovItemPrefix="haodong.detection.step.algo.StepPeakAlgo.java" Intrnl_Id="196">
+<BasicBoolTerm Intrnl_Id="197">
+<LocList>
+<Loc EndOffset="561" SrcFileId="4" StartOffset="528"/>
+</LocList>
+</BasicBoolTerm>
+</RootTerm>
+</CondStmnt>
+</StmntSeq>
+</Branch>
+<Branch CovItemId="B2" CovItemPrefix="haodong.detection.step.algo.StepPeakAlgo.java" Implct="true" Intrnl_Id="198">
+<Cond/>
+<LocList/>
+<StmntSeq Intrnl_Id="199">
+<LocList/>
+</StmntSeq>
+</Branch>
+<Keyword EndOffset="459" SrcFileId="4" StartOffset="457"/>
+<LocList>
+<Loc EndOffset="659" SrcFileId="4" StartOffset="457"/>
+</LocList>
+<RootTerm CovItemId="C1" CovItemPrefix="haodong.detection.step.algo.StepPeakAlgo.java" Intrnl_Id="200">
+<BasicBoolTerm Intrnl_Id="201">
+<LocList>
+<Loc EndOffset="519" SrcFileId="4" StartOffset="460"/>
+</LocList>
+</BasicBoolTerm>
+</RootTerm>
+</CondStmnt>
+<BasicStmnt CovItemId="S12" CovItemPrefix="haodong.detection.step.algo.StepPeakAlgo.java" Intrnl_Id="202">
+<LocList>
+<Loc EndOffset="679" SrcFileId="4" StartOffset="662"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+</HierarchyLvl>
+<HierarchyLvl HierarchyLvlId="210" HierarchyLvlTypeId="8" Intrnl_Id="203" Name="getPeakInterval">
+<Header>
+<Loc EndOffset="715" SrcFileId="4" StartOffset="685"/>
+</Header>
+<LocList>
+<Loc EndOffset="743" SrcFileId="4" StartOffset="685"/>
+</LocList>
+<StmntSeq Intrnl_Id="204">
+<LocList>
+<Loc EndOffset="740" SrcFileId="4" StartOffset="720"/>
+</LocList>
+<BasicStmnt CovItemId="S13" CovItemPrefix="haodong.detection.step.algo.StepPeakAlgo.java" Intrnl_Id="205">
+<LocList>
+<Loc EndOffset="740" SrcFileId="4" StartOffset="720"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+</HierarchyLvl>
+<HierarchyLvl HierarchyLvlId="211" HierarchyLvlTypeId="8" Intrnl_Id="206" Name="setPeakInterval">
+<Header>
+<Loc EndOffset="793" SrcFileId="4" StartOffset="746"/>
+</Header>
+<LocList>
+<Loc EndOffset="834" SrcFileId="4" StartOffset="746"/>
+</LocList>
+<StmntSeq Intrnl_Id="207">
+<LocList>
+<Loc EndOffset="831" SrcFileId="4" StartOffset="798"/>
+</LocList>
+<BasicStmnt CovItemId="S14" CovItemPrefix="haodong.detection.step.algo.StepPeakAlgo.java" Intrnl_Id="208">
+<LocList>
+<Loc EndOffset="831" SrcFileId="4" StartOffset="798"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+</HierarchyLvl>
+<HierarchyLvl HierarchyLvlId="212" HierarchyLvlTypeId="8" Intrnl_Id="209" Name="getPeakThreshold">
+<Header>
+<Loc EndOffset="868" SrcFileId="4" StartOffset="837"/>
+</Header>
+<LocList>
+<Loc EndOffset="897" SrcFileId="4" StartOffset="837"/>
+</LocList>
+<StmntSeq Intrnl_Id="210">
+<LocList>
+<Loc EndOffset="894" SrcFileId="4" StartOffset="873"/>
+</LocList>
+<BasicStmnt CovItemId="S15" CovItemPrefix="haodong.detection.step.algo.StepPeakAlgo.java" Intrnl_Id="211">
+<LocList>
+<Loc EndOffset="894" SrcFileId="4" StartOffset="873"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+</HierarchyLvl>
+<HierarchyLvl HierarchyLvlId="213" HierarchyLvlTypeId="8" Intrnl_Id="212" Name="setPeakThreshold">
+<Header>
+<Loc EndOffset="949" SrcFileId="4" StartOffset="900"/>
+</Header>
+<LocList>
+<Loc EndOffset="992" SrcFileId="4" StartOffset="900"/>
+</LocList>
+<StmntSeq Intrnl_Id="213">
+<LocList>
+<Loc EndOffset="989" SrcFileId="4" StartOffset="954"/>
+</LocList>
+<BasicStmnt CovItemId="S16" CovItemPrefix="haodong.detection.step.algo.StepPeakAlgo.java" Intrnl_Id="214">
+<LocList>
+<Loc EndOffset="989" SrcFileId="4" StartOffset="954"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+</HierarchyLvl>
+<HierarchyLvl HierarchyLvlId="214" HierarchyLvlTypeId="8" Intrnl_Id="215" Name="getStepResultList">
+<Header>
+<Loc EndOffset="1051" SrcFileId="4" StartOffset="995"/>
+</Header>
+<LocList>
+<Loc EndOffset="1071" SrcFileId="4" StartOffset="995"/>
+</LocList>
+<StmntSeq Intrnl_Id="216">
+<LocList>
+<Loc EndOffset="1068" SrcFileId="4" StartOffset="1056"/>
+</LocList>
+<BasicStmnt CovItemId="S17" CovItemPrefix="haodong.detection.step.algo.StepPeakAlgo.java" Intrnl_Id="217">
+<LocList>
+<Loc EndOffset="1068" SrcFileId="4" StartOffset="1056"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+</HierarchyLvl>
+</HierarchyLvl>
+</HierarchyLvl>
+</HierarchyLvl>
+</HierarchyLvl>
+</HierarchyLvl>
+</HierarchyLvl>
+</MASTRoot>
+</TestSessionContainer>

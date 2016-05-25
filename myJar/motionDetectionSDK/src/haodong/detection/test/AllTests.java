@@ -8,7 +8,9 @@ import org.junit.runners.Suite;
 	StepFilterTestCase.class,
 	StepBonusTestCase.class,
 	StepSeftAdjustTestCase.class,
-	StepPeakTestCase.class})
+	StepPeakTestCase.class,
+	TurnAlgoTestCase.class,
+	LevelAlgoTestCase.class})
 
 public class AllTests {
 	public static void main (String args[]) {

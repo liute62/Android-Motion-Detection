@@ -1,35 +1,18 @@
 package haodong.detection.test;
 
-import static org.junit.Assert.*;
-
 import org.junit.Assert;
 import org.junit.Test;
 
-import haodong.detection.step.algo.StepPeakAlgo;
+import haodong.detection.level.algo.LevelWindowAlgo;
 
-public class StepPeakTestCase {
-	
-	public StepPeakAlgo stepPeakAlgo;
-	
-	public StepPeakTestCase() {
-		stepPeakAlgo = new StepPeakAlgo();
-	}
-	
-	@Test
-	public void testForStepResultDefaultValue() {
-		Assert.assertEquals(0, stepPeakAlgo.getStepResult());
-	}
-	
-	@Test
-	public void testForStepResultDefaultList(){
-		Assert.assertEquals(null, stepPeakAlgo.getStepResultList());
-	}
-	
-	@Test
-	public void testForFeedData(){
-		stepPeakAlgo.feedData(0);
-	}
+public class LevelAlgoTestCase {
 
+	LevelWindowAlgo levelWindowAlgo;
+	
+	public LevelAlgoTestCase(){
+		levelWindowAlgo = new LevelWindowAlgo();
+	}
+	
 	@Test
 	public void a(){
 		Assert.assertEquals(0, 0);
@@ -58,14 +41,14 @@ public class StepPeakTestCase {
 	@Test
 	public void f(){
 		Assert.assertEquals(0, 0);
-		for (int i = 0; i < 17100000; i++) {
-			i++;
-		}
-		Assert.assertEquals(0, 0);
 	}
 	
 	@Test
 	public void g(){
+		for (int i = 0; i < 101000; i++) {
+			i++;
+		}
+		Assert.assertEquals(0, 0);
 		Assert.assertEquals(0, 0);
 	}
 	
