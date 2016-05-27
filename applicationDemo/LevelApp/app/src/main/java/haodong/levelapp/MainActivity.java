@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import haodong.detection.level.LevelAlgoManager;
@@ -70,9 +71,10 @@ public class MainActivity extends AppCompatActivity implements SensorDataListene
                     mIsStart.setText("已停止");
                     levelAlgoManager.stop();
                     SensorDataFormat sensorDataFormat = new SensorDataFormat();
-                    String file = sensorDataFormat.listToString(time, data, ',');
+                    String file = sensorDataFormat.listToString(time, data, " ");
                     FileUtil fileUtil = new FileUtil();
-                    fileUtil.writeFileFromAbPath(Environment.getExternalStorageDirectory().getAbsolutePath()+"level.txt",file,false);
+                    Log.e("path",Environment.getExternalStorageDirectory().getAbsolutePath()+ File.separator+"level.txt");
+                    fileUtil.writeFileFromAbPath(Environment.getExternalStorageDirectory().getAbsolutePath()+ File.separator+"level.txt",file,false);
                 }
             }
         });
@@ -110,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements SensorDataListene
     public void onSensorReading(SensorEvent sensorEvent) {
 
            currentTime = System.currentTimeMillis();
-        if(currentTime - lastTime > 50){
+        if(currentTime - lastTime > 20){
             lastTime = currentTime;
             data.add(String.valueOf(sensorEvent.values[0]));
             time.add(lastTime);
